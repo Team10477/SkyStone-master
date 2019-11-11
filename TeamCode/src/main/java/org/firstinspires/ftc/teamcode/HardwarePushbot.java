@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -57,7 +58,12 @@ public class HardwarePushbot
     public DcMotor leftFrontWheel=null;
     public DcMotor rightFrontWheel=null;
 
-     /* local OpMode members. */
+    RevColorSensorV3 colorSensor = null;    // Hardware Device Object
+    RevColorSensorV3 colorSensorRight = null;    // Hardware Device Object
+
+
+
+    /* local OpMode members. */
     HardwareMap hwMap           =  null;
 
     private ElapsedTime period  = new ElapsedTime();
@@ -74,6 +80,10 @@ public class HardwarePushbot
 
             // Define and Initialize Motors
             defineMotors(hwMap);
+
+            colorSensor = hwMap.get(RevColorSensorV3.class, "color_sensor");
+
+            colorSensorRight = hwMap.get(RevColorSensorV3.class, "color_sensor_right");
 
             setWheelDirectionForward();
 
@@ -138,6 +148,22 @@ public class HardwarePushbot
         rightBackWheel.setPower(-power);
     }
 
+    // Strafe Adjustment because robot tends to move backward during strafe.
+    public void setWheelPowerForSideWithDelta(double power, double deltaP) {
+        rightFrontWheel.setPower(power * deltaP);
+        leftFrontWheel.setPower(-power);
+        leftBackWheel.setPower(power * deltaP);
+        rightBackWheel.setPower(-power);
+    }
+
+    // Set all motors to given power to strafe
+    public void setWheelPowerTurnRight(double power) {
+        rightFrontWheel.setPower(power);
+        leftFrontWheel.setPower(-power);
+        leftBackWheel.setPower(-power);
+        rightBackWheel.setPower(power);
+    }
+
     // Set all motors to zero power
     public void stopWheels() {
         rightFrontWheel.setPower(0);
@@ -145,7 +171,6 @@ public class HardwarePushbot
         leftBackWheel.setPower(0);
         rightBackWheel.setPower(0);
     }
-
 
 
  }
