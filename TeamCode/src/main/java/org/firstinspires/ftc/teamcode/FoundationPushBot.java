@@ -12,7 +12,6 @@ public class FoundationPushBot extends HardwarePushbot {
     public DigitalChannel touchSensorFront = null;
 
     public FoundationPushBot(){
-
     }
 
     /* Initialize standard Hardware interfaces */
