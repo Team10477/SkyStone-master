@@ -70,7 +70,6 @@ public class HardwarePushbot
 
         /* Constructor */
          public HardwarePushbot(){
-
         }
 
         /* Initialize standard Hardware interfaces */
