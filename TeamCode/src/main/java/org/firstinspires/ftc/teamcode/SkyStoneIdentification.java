@@ -142,22 +142,24 @@ public class SkyStoneIdentification  {
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     int cameraMonitorViewId = 0;
 
-    public void identifyTarget(Telemetry telemetry, HardwarePushbot robot ) {
+    public boolean identifyTarget(Telemetry telemetry, HardwarePushbot robot, boolean isRed ) {
 
-        loadVuforiaTrackables() ;
+     //   loadVuforiaTrackables() ;
         targetVisible = false;
        while (!targetVisible) {
-
-           robot.setWheelPowerForSide(0.15);
+           if (isRed)
+               robot.setWheelPowerForSideWithDelta(0.15, 1.1);
+           else
+               robot.setWheelPowerForSideWithDelta(-0.15, 1.1);
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
             for (VuforiaTrackable trackable : allTrackables) {
                 if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                //    if (trackable.getName().equals("Stone Target")) {
+                   if (trackable.getName().equals("Stone Target")) {
                         telemetry.addData("Visible Target", trackable.getName());
                         targetVisible = true;
-                       // break;
-                 //   }
+
+                    }
 
                     // getUpdatedRobotLocation() will return null if no new information is available since
                     // the last time that call was made, or if the trackable is not currently visible.
@@ -188,6 +190,8 @@ public class SkyStoneIdentification  {
 
         // Disable Tracking when we are done;
         targetsSkyStone.deactivate();
+
+       return targetVisible;
     }
 
     public void initCamera(HardwareMap hardwareMap) {
@@ -204,6 +208,7 @@ public class SkyStoneIdentification  {
          */
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
+        loadVuforiaTrackables();
 
     }
 
@@ -230,14 +235,14 @@ public class SkyStoneIdentification  {
 
          targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
 
-       VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
-        stoneTarget.setName("Stone Target");
+         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
+         stoneTarget.setName("Stone Target");
 
-        // For convenience, gather together all the trackable objects in one easily-iterable collection */
-        allTrackables.addAll(targetsSkyStone);
+         // For convenience, gather together all the trackable objects in one easily-iterable collection */
+         allTrackables.addAll(targetsSkyStone);
 
 
-       stoneTarget.setLocation(OpenGLMatrix
+         stoneTarget.setLocation(OpenGLMatrix
                 .translation(0, 0, stoneZ)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
 
@@ -276,5 +281,6 @@ public class SkyStoneIdentification  {
 
 
    }
+
 
 }
