@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -7,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -16,6 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 
 @Autonomous(name="Skystone Pickup Red")
 public class SkystonePickupRed extends LinearOpMode {
@@ -40,6 +47,10 @@ public class SkystonePickupRed extends LinearOpMode {
     double LEFT = 0.2;
     double RIGHT = -0.2;
 
+    // hsvValues is an array that will hold the hue, saturation, and value information.
+    float hsvValues[] = {0F, 0F, 0F};
+
+
     // The IMU sensor object
     BNO055IMU imu;
 
@@ -54,6 +65,7 @@ public class SkystonePickupRed extends LinearOpMode {
         robot.setWheelDirectionReverse();
         initGryo();
         skyStoneIdentification.initCamera(hardwareMap);
+        enableColorSensor();
 
         waitForStart();
 
@@ -63,36 +75,43 @@ public class SkystonePickupRed extends LinearOpMode {
 
         robot.stopWheels();
 
-        boolean isVisible = skyStoneIdentification.identifyTarget(telemetry,robot, isRed);
-/*
-        if (isVisible) {*/
-            //Adjust
-             robot.setWheelPowerForSide(0.5);
-             sleep(500);
+         boolean isVisible = skyStoneIdentification.identifyTarget(telemetry,robot, isRed);
 
-            robot.setWheelDirectionReverse(); // Go Forward near the block
-            robot.setWheelPower(0.25);
-            sleep(1100);
+        if (isVisible) {
+
+            robot.setWheelPowerForSide(0.15);
+            sleep(200);
 
             pickUpArm.setPosition(0.9);   // Arm to grab.
-             sleep(700);
+            sleep(1000);
             robot.stopWheels();
+
 
             robot.setWheelDirectionForward();   // Go backward after picking up the block.
             robot.setWheelPower(0.35);
-            sleep(400);
+            sleep(700);
             robot.stopWheels();
 
             turnRight90WithGryro();     // Turn Right 90 degrees.
-            sleep(400);
-          //   robot.stopWheels();
+            sleep(200);
+            robot.stopWheels();
 
-            robot.setWheelDirectionReverse();   // Go forward crossing the bridge.
-             robot.setWheelPower(0.5);
-            sleep(2300);
+           robot.setWheelDirectionReverse();   // Go forward crossing the bridge.*/
+           stopAtRed(false);
+           robot.setWheelPower(0.5);
+           sleep(100);
+           robot.stopWheels();
 
+           pickUpArm.setPosition(0);
+            sleep(600);
+           robot.stopWheels();
 
-     //   }
+            //Come back under the bridge
+            robot.setWheelDirectionForward();   // Go backward after picking up the block.
+            robot.setWheelPower(0.35);
+            stopAtRed(false);
+
+      }
 
     }
 
@@ -190,5 +209,38 @@ public class SkystonePickupRed extends LinearOpMode {
     }
 
 
+    public void stopAtRed(boolean colorFound) {
+        while (colorFound == false) {
+            Color.RGBToHSV((int)(robot.colorSensorRight.red() * 8), (int)(robot.colorSensorRight.green() *8), (int)(robot.colorSensorRight.blue() * 8), hsvValues);
+
+            float hue = hsvValues[0];
+
+            float saturation = hsvValues[1];
+
+            telemetry.addData("Color Red", hue);
+            telemetry.update();
+
+            boolean redHue = (hue < 60 || hue > 320) && (saturation > 0.5);
+            boolean blueHue = (hue > 180 && hue < 240) && (saturation > 0.5);
+
+            if (redHue)  {
+                robot.stopWheels();
+                colorFound = true;
+            }else {
+                robot.setWheelPower(0.5);
+            }
+        }
+    }
+
+    public void enableColorSensor() {
+
+        // values is a reference to the hsvValues array.
+        final float values[] = hsvValues;
+
+        final View relativeLayout = ((Activity)hardwareMap.appContext).findViewById(R.id.RelativeLayout);
+
+        robot.colorSensorRight.enableLed(true);
+
+    }
 
 }
