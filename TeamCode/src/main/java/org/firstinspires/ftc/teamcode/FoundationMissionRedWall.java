@@ -70,6 +70,9 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
         stopAtRed(false);
 
+        robot.setWheelPowerForSide(-0.5);
+        sleep(50);
+
     }
 
     public void stopAtRed(boolean colorFound) {
