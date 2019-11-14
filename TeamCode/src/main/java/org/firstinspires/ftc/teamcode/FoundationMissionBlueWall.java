@@ -70,11 +70,15 @@ public class FoundationMissionBlueWall extends LinearOpMode {
 
         stopAtBlue(false);
 
+        robot.setWheelPowerForSide(0.5);
+        sleep(50);
+
+
     }
 
     public void stopAtBlue(boolean colorFound) {
         while (colorFound == false) {
-            Color.RGBToHSV((int)(robot.colorSensorRight.red() * 8), (int)(robot.colorSensorRight.green() *8), (int)(robot.colorSensorRight.blue() * 8), hsvValues);
+            Color.RGBToHSV((int)(robot.colorSensor.red() * 8), (int)(robot.colorSensor.green() *8), (int)(robot.colorSensor.blue() * 8), hsvValues);
 
             float hue = hsvValues[0];
 
