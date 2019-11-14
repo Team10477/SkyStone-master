@@ -71,6 +71,9 @@ public class FoundationMissionRedBridge extends LinearOpMode {
         stopAtRed(false);
 
         // Go forward for few secs
+        robot.setWheelDirectionForward();
+        robot.setWheelPower(0.5);
+        sleep(1400);
 
     }
 
