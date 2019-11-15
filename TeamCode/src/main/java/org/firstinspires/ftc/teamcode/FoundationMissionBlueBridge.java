@@ -38,42 +38,47 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
 
         waitForStart();
 
-        robot.setPosition(0); //Starting Position
+        int counter = 1;
+        while (opModeIsActive() && counter == 1) {
 
-        sleep(1000);
+            robot.setPosition(0); //Starting Position
 
-        robot.setWheelPowerForSide(0.5);       // Move sideways.to left.
+            sleep(1000);
 
-        sleep(1000);
+            robot.setWheelPowerForSide(0.5);       // Move sideways.to left.
 
-        while (robot.touchSensor.getState()) {      // Go forward until touch sensor is pressed.
-           robot.setWheelPower(WHEEL_MOVING_SPEED);
+            sleep(1000);
+
+            while (robot.touchSensor.getState()) {      // Go forward until touch sensor is pressed.
+                robot.setWheelPower(WHEEL_MOVING_SPEED);
+            }
+
+            robot.stopWheels();
+
+            robot.setPosition(ARM_POSITION);        // Foundation Arms down
+
+            sleep(1000);
+
+            robot.setWheelDirectionReverse();
+
+            while (robot.touchSensorFront.getState()) {      // Go backward until touch sensor is pressed.
+                robot.setWheelPower(WHEEL_MOVING_SPEED);
+            }
+
+            robot.stopWheels();
+
+            robot.setPosition(0);        //Foundation arm back to start position.
+
+            sleep(1000);
+
+            stopAtBlue(false);
+
+            //Go forward for certain time
+            robot.setWheelDirectionForward();
+            robot.setWheelPower(0.5);
+            sleep(1400);
+            counter++;
         }
-
-        robot.stopWheels() ;
-
-        robot.setPosition(ARM_POSITION);        // Foundation Arms down
-
-        sleep(1000);
-
-        robot.setWheelDirectionReverse();
-
-        while (robot.touchSensorFront.getState()) {      // Go backward until touch sensor is pressed.
-            robot.setWheelPower(WHEEL_MOVING_SPEED);
-        }
-
-        robot.stopWheels() ;
-
-        robot.setPosition(0);        //Foundation arm back to start position.
-
-        sleep(1000);
-
-        stopAtBlue(false);
-
-        //Go forward for certain time
-        robot.setWheelDirectionForward();
-        robot.setWheelPower(0.5);
-        sleep(1400);
 
     }
 

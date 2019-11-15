@@ -134,7 +134,7 @@ public class SkyStoneIdentification  {
      * This is the webcam we are to use. As with other hardware devices such as motors and
      * servos, this device is identified using the robot configuration tool in the FTC application.
      */
-    WebcamName webcamName = null;
+  //  WebcamName webcamName = null;
 
     private boolean targetVisible = false;
     private float phoneXRotate    = 0;
@@ -147,15 +147,14 @@ public class SkyStoneIdentification  {
 
     public boolean identifyTarget(Telemetry telemetry, HardwarePushbot robot, boolean isRed ) {
 
-     //   loadVuforiaTrackables() ;
         targetVisible = false;
         VectorF translation = null;
         elapsedTime.reset();
-        while (!targetVisible && elapsedTime.seconds() < 8) {
+        while (!targetVisible && elapsedTime.seconds() < 15) {
            if (isRed)
                robot.setWheelPowerForSideWithDelta(0.15, 1.1);
            else
-               robot.setWheelPowerForSideWithDelta(-0.15, 1.1);
+               robot.setWheelPowerForSideWithDelta(-0.15, 1.0);
             // check all the trackable targets to see which one (if any) is visible.
 
             VuforiaTrackable trackTarget = null;
@@ -184,9 +183,6 @@ public class SkyStoneIdentification  {
                 // express position (translation) of robot in inches.
                 translation = lastLocation.getTranslation();
 
-             /*   double x = translation.get(0);
-                double y = translation.get(1); */
-
                 while (translation.get(1) < 6.0 && lastLocation != null ) {
                     telemetry.addData("Pos (in) Y value", "{X, Y, Z} = %.1f, %.1f, %.1f",
                             translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
@@ -198,11 +194,11 @@ public class SkyStoneIdentification  {
                     }
                     translation = lastLocation.getTranslation();
                 }
-                translation = lastLocation.getTranslation();
-                robot.setWheelDirectionReverse(); // Go Forward near the block
+                /*translation = lastLocation.getTranslation();
+                robot.setWheelDirectionReverse(); // Go Forward near the block*/
 
-                elapsedTime.reset();
-                while (translation.get(0) < -2.0 && lastLocation != null && elapsedTime.seconds() < 2.0) {
+              /*  elapsedTime.reset();
+                while (translation.get(0) < -2.0 && lastLocation != null ) {
                     telemetry.addData("Pos (in) X values", "{X, Y, Z} = %.1f, %.1f, %.1f",
                             translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
                     telemetry.update();
@@ -212,7 +208,7 @@ public class SkyStoneIdentification  {
                         lastLocation = robotLocationTransform;
                     }
                     translation = lastLocation.getTranslation();
-                }
+                }*/
 
                 robot.stopWheels();
 
@@ -230,14 +226,17 @@ public class SkyStoneIdentification  {
         // Disable Tracking when we are done;
         targetsSkyStone.deactivate();
 
+        telemetry.addData("Is Visible Target", targetVisible);
+        telemetry.update();
+
        return targetVisible;
     }
 
-    public void initCamera(HardwareMap hardwareMap) {
+    public void initCamera(HardwareMap hardwareMap, WebcamName webcamName) {
         /*
          * Retrieve the camera we are to use.
          */
-        webcamName = hardwareMap.get(WebcamName.class, "Webcam1");
+        //webcamName = hardwareMap.get(WebcamName.class, "Webcam1");
 
 
         /*
@@ -247,12 +246,12 @@ public class SkyStoneIdentification  {
          */
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        loadVuforiaTrackables();
+        loadVuforiaTrackables(webcamName);
 
     }
 
 
-     public void loadVuforiaTrackables() {
+     public void loadVuforiaTrackables(WebcamName webcamName) {
 
 //
 //        //  Instantiate the Vuforia engine

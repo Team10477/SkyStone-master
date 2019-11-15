@@ -38,40 +38,44 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
         waitForStart();
 
-        robot.setPosition(0); //Starting Position
+        int counter = 1;
+        while (opModeIsActive() && counter == 1) {
+            robot.setPosition(0); //Starting Position
 
-        sleep(1000);
+            sleep(1000);
 
-        robot.setWheelPowerForSide(-0.5);       // Move sideways to right.
+            robot.setWheelPowerForSide(-0.5);       // Move sideways to right.
 
-        sleep(1000);
+            sleep(1000);
 
-        while (robot.touchSensor.getState()) {      // Go forward until touch sensor is pressed.
-           robot.setWheelPower(WHEEL_MOVING_SPEED);
+            while (robot.touchSensor.getState()) {      // Go forward until touch sensor is pressed.
+                robot.setWheelPower(WHEEL_MOVING_SPEED);
+            }
+
+            robot.stopWheels();
+
+            robot.setPosition(ARM_POSITION);        // Foundation Arms down
+
+            sleep(1000);
+
+            robot.setWheelDirectionReverse();
+
+            while (robot.touchSensorFront.getState()) {      // Go backward until touch sensor is pressed.
+                robot.setWheelPower(WHEEL_MOVING_SPEED);
+            }
+
+            robot.stopWheels();
+
+            robot.setPosition(0);        //Foundation arm back to start position.
+
+            sleep(1000);
+
+            stopAtRed(false);
+
+            robot.setWheelPowerForSide(-0.5);
+            sleep(50);
+            counter++;
         }
-
-        robot.stopWheels() ;
-
-        robot.setPosition(ARM_POSITION);        // Foundation Arms down
-
-        sleep(1000);
-
-        robot.setWheelDirectionReverse();
-
-        while (robot.touchSensorFront.getState()) {      // Go backward until touch sensor is pressed.
-            robot.setWheelPower(WHEEL_MOVING_SPEED);
-        }
-
-        robot.stopWheels() ;
-
-        robot.setPosition(0);        //Foundation arm back to start position.
-
-        sleep(1000);
-
-        stopAtRed(false);
-
-        robot.setWheelPowerForSide(-0.5);
-        sleep(50);
 
     }
 

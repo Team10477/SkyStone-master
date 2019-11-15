@@ -18,15 +18,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name="Skystone Pickup Blue")
-public class SkystonePickupBlue extends LinearOpMode {
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 
-    HardwarePushbot robot = new HardwarePushbot();
+@Autonomous(name="Skystone Pickup Red Wall")
+public class SkystonePickupRedWall extends LinearOpMode {
+
+    SkystonePushBot robot = new SkystonePushBot();
     SkyStoneIdentification skyStoneIdentification = new SkyStoneIdentification();
-    Servo pickUpArm;
+
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
     private static final double MAXIMUM_POSITION = 1.0;
@@ -38,14 +41,15 @@ public class SkystonePickupBlue extends LinearOpMode {
     double leftRearPower;
     double rightRearPower;
 
+    boolean isRed = true;
+
     double heading;
     double LEFT = 0.2;
     double RIGHT = -0.2;
 
-    boolean isRed = false;
-
     // hsvValues is an array that will hold the hue, saturation, and value information.
     float hsvValues[] = {0F, 0F, 0F};
+
 
     // The IMU sensor object
     BNO055IMU imu;
@@ -57,67 +61,72 @@ public class SkystonePickupBlue extends LinearOpMode {
      @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
-        pickUpArm = hardwareMap.get(Servo.class, "front_arm");
         robot.setWheelDirectionReverse();
         initGryo();
-        skyStoneIdentification.initCamera(hardwareMap);
-         enableColorSensor();
+        skyStoneIdentification.initCamera(hardwareMap, robot.webcamName);
+        enableColorSensor();
 
         waitForStart();
 
-        pickUpArm.setPosition(0);
-       int counter = 1;
-        while (opModeIsActive() && counter == 1) {
-            robot.setWheelPower(0.5);
-            sleep(1005);
+         int counter = 1;
+         while (opModeIsActive() && counter == 1) {
 
-            robot.stopWheels();
+             robot.pickupArm.setPosition(0);
+             robot.setWheelPower(0.5);
+             sleep(1005);
 
-            boolean isVisible = skyStoneIdentification.identifyTarget(telemetry, robot, isRed);
+             robot.stopWheels();
 
-            if (!isVisible) {
-                robot.setWheelDirectionReverse();
-                robot.setWheelPower(0.15);
-                sleep(1000);
+             boolean isVisible = skyStoneIdentification.identifyTarget(telemetry, robot, isRed);
 
-                pickUpArm.setPosition(0.9);   // Arm to grab.
-                sleep(1000);
-                robot.stopWheels();
-                robot.setWheelDirectionForward();   // Go backward after picking up the block.
-                robot.setWheelPower(0.35);
-                sleep(900);
-                robot.stopWheels();
+             if (!isVisible) {
 
-            } else {
-                pickUpArm.setPosition(0.9);   // Arm to grab.
-                sleep(1000);
-                robot.stopWheels();
-                robot.setWheelDirectionForward();   // Go backward after picking up the block.
-                robot.setWheelPower(0.35);
-                sleep(700);
-                robot.stopWheels();
-           }
-                turnLeft90WithGryro();     // Turn Right 90 degrees.
-                sleep(200);
-                robot.stopWheels();
+                 robot.setWheelDirectionReverse();
+                 robot.setWheelPower(0.15);
+                 sleep(3500);
 
-               robot.setWheelDirectionReverse();   // Go forward crossing the bridge.*/
-                stopAtBlue(false);
-               robot.setWheelPower(0.5);
-               sleep(100);
-               robot.stopWheels();
 
-                pickUpArm.setPosition(0);
-               sleep(600);
-               robot.stopWheels();
+             } else {
+                 robot.setWheelPowerForSide(0.15);
+                 sleep(500);
 
-              //  Come back under the bridge
-                robot.setWheelDirectionForward();   // Go backward after picking up the block.
-                stopAtBlue(false);
+                 robot.setWheelPower(0.15);
+                 sleep(3500);
 
-            counter++;
-       }
-//
+             }
+
+             robot.pickupArm.setPosition(0.85);   // Arm to grab.
+             sleep(1000);
+             robot.stopWheels();
+
+
+             robot.setWheelDirectionForward();   // Go backward after picking up the block.
+             robot.setWheelPower(0.35);
+             sleep(3500);
+             robot.stopWheels();
+
+             turnRight90WithGryro();     // Turn Right 90 degrees.
+             sleep(200);
+             robot.stopWheels();
+
+             robot.setWheelDirectionReverse();   // Go forward crossing the bridge.*/
+             stopAtRed(false);
+             robot.setWheelPower(0.5);
+             sleep(100);
+             robot.stopWheels();
+
+              robot.pickupArm.setPosition(0);
+              sleep(600);
+              robot.stopWheels();
+
+                 //Come back under the bridge
+              robot.setWheelDirectionForward();   // Go backward after picking up the block.
+              robot.setWheelPower(0.35);
+              stopAtRed(false);
+
+             counter++;
+         }
+
     }
 
     /**
@@ -160,11 +169,11 @@ public class SkystonePickupBlue extends LinearOpMode {
     /**
      * Turn Right 90 degrees.
      */
-    public void turnLeft90WithGryro() {
+    public void turnRight90WithGryro() {
         heading = getAngle();
-        while (heading<85.0) {
+        while (heading>-85.0) {
             heading = getAngle();
-            setMecanumPower(0, Math.PI/4, (LEFT*Math.abs(91-heading)/90)+0.1);
+            setMecanumPower(0, Math.PI/4, (RIGHT*Math.abs(-91-heading)/90)-0.1);
         }
     }
 
@@ -213,7 +222,8 @@ public class SkystonePickupBlue extends LinearOpMode {
         robot.rightBackWheel.setPower(rightRearPower);
     }
 
-    public void stopAtBlue(boolean colorFound) {
+
+    public void stopAtRed(boolean colorFound) {
         while (colorFound == false) {
             Color.RGBToHSV((int)(robot.colorSensorRight.red() * 8), (int)(robot.colorSensorRight.green() *8), (int)(robot.colorSensorRight.blue() * 8), hsvValues);
 
@@ -221,13 +231,13 @@ public class SkystonePickupBlue extends LinearOpMode {
 
             float saturation = hsvValues[1];
 
-            telemetry.addData("Color Blue", hue);
+            telemetry.addData("Color Red", hue);
             telemetry.update();
 
             boolean redHue = (hue < 60 || hue > 320) && (saturation > 0.5);
             boolean blueHue = (hue > 180 && hue < 240) && (saturation > 0.5);
 
-            if (blueHue)  {
+            if (redHue)  {
                 robot.stopWheels();
                 colorFound = true;
             }else {
@@ -246,6 +256,5 @@ public class SkystonePickupBlue extends LinearOpMode {
         robot.colorSensorRight.enableLed(true);
 
     }
-
 
 }
