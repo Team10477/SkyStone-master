@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -145,12 +146,12 @@ public class SkyStoneIdentification  {
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     int cameraMonitorViewId = 0;
 
-    public boolean identifyTarget(Telemetry telemetry, HardwarePushbot robot, boolean isRed ) {
+    public boolean identifyTarget(Telemetry telemetry, HardwarePushbot robot, boolean isRed, LinearOpMode opMode) {
 
         targetVisible = false;
         VectorF translation = null;
         elapsedTime.reset();
-        while (!targetVisible && elapsedTime.seconds() < 15) {
+        while (!targetVisible && elapsedTime.seconds() < 15 && opMode.opModeIsActive()) {
            if (isRed)
                robot.setWheelPowerForSideWithDelta(0.15, 1.1);
            else
@@ -183,7 +184,7 @@ public class SkyStoneIdentification  {
                 // express position (translation) of robot in inches.
                 translation = lastLocation.getTranslation();
 
-                while (translation.get(1) < 6.0 && lastLocation != null ) {
+                while (translation.get(1) < 6.0 && lastLocation != null && opMode.opModeIsActive()) {
                     telemetry.addData("Pos (in) Y value", "{X, Y, Z} = %.1f, %.1f, %.1f",
                             translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
                     telemetry.update();

@@ -59,69 +59,59 @@ public class SkystonePickupBlueBridge extends LinearOpMode {
         robot.setWheelDirectionReverse();
         initGryo();
         skyStoneIdentification.initCamera(hardwareMap, robot.webcamName);
-         enableColorSensor();
+        enableColorSensor();
 
         waitForStart();
 
         robot.pickupArm.setPosition(0);
-       int counter = 1;
+        int counter = 1;
         while (opModeIsActive() && counter == 1) {
+
             robot.setWheelPower(0.5);
-            sleep(1250);
+            sleep(1005);
 
             robot.stopWheels();
 
-            boolean isVisible = skyStoneIdentification.identifyTarget(telemetry, robot, isRed);
+            boolean isVisible = skyStoneIdentification.identifyTarget(telemetry, robot, isRed, this);
 
             if (!isVisible) {
                 robot.setWheelDirectionReverse();
-                robot.setWheelPower(0.15);
-                sleep(3000);
-
-              /*  robot.setWheelPower(0.15);
-                sleep(500);*/
-
-                robot.pickupArm.setPosition(0.85);   // Arm to grab.
-                sleep(1000);
-                robot.stopWheels();
-
-                robot.setWheelDirectionForward();   // Go backward after picking up the block.
-                robot.setWheelPower(0.35);
-                sleep(1200);
-                robot.stopWheels();
-
-                //
+                robot.setWheelPower(0.25);
+                sleep(1100);
 
             } else {
 
-                robot.setWheelPowerForSide(0.15);
-                sleep(500);
+                robot.setWheelPowerForSide(0.25);
+                sleep(600);
 
                 robot.setWheelDirectionReverse();
-                robot.setWheelPower(0.15);
-                sleep(3000);
+                robot.setWheelPower(0.25);
+                sleep(1000);
 
            }
 
-            robot.pickupArm.setPosition(0.85);   // Arm to grab.
+            robot.pickupArm.setPosition(0.90);   // Arm to grab.
             sleep(1000);
             robot.stopWheels();
 
             robot.setWheelDirectionForward();   // Go backward after picking up the block.
             robot.setWheelPower(0.35);
-            sleep(1200);
+            sleep(700);
             robot.stopWheels();
 
            turnLeft90WithGryro();     // Turn Right 90 degrees.
            sleep(200);
            robot.stopWheels();
 
+            robot.resetIfArmTouches();
+
            robot.setWheelDirectionReverse();   // Go forward crossing the bridge.*/
            stopAtBlue(false);
            robot.setWheelPower(0.5);
-           sleep(100);
+           sleep(400);
            robot.stopWheels();
 
+           robot.resetIfArmTouches();
 
            robot.pickupArm.setPosition(0);
            sleep(600);
@@ -129,6 +119,7 @@ public class SkystonePickupBlueBridge extends LinearOpMode {
 
            //  Come back under the bridge
            robot.setWheelDirectionForward();   // Go backward after picking up the block.
+            robot.setWheelPower(0.35);
            stopAtBlue(false);
 
             counter++;
@@ -178,9 +169,9 @@ public class SkystonePickupBlueBridge extends LinearOpMode {
      */
     public void turnLeft90WithGryro() {
         heading = getAngle();
-        while (heading<85.0) {
+        while (heading<85.0 && opModeIsActive()) {
             heading = getAngle();
-            setMecanumPower(0, Math.PI/4, (LEFT*Math.abs(91-heading)/90)+0.1);
+            setMecanumPower(0, Math.PI/4, (LEFT*Math.abs(75-heading)/90)+0.2);
         }
     }
 
@@ -230,7 +221,7 @@ public class SkystonePickupBlueBridge extends LinearOpMode {
     }
 
     public void stopAtBlue(boolean colorFound) {
-        while (colorFound == false) {
+        while (colorFound == false && opModeIsActive()) {
             Color.RGBToHSV((int)(robot.colorSensor.red() * 8), (int)(robot.colorSensor.green() *8), (int)(robot.colorSensor.blue() * 8), hsvValues);
 
             float hue = hsvValues[0];

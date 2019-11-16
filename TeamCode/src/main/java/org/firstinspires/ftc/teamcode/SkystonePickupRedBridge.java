@@ -64,64 +64,73 @@ public class SkystonePickupRedBridge extends LinearOpMode {
         waitForStart();
 
          int counter = 1;
-         while (opModeIsActive() && counter == 1) {
 
-             robot.pickupArm.setPosition(0);
-             robot.setWheelPower(0.5);
-             sleep(1005);
+         try {
+             while (opModeIsActive() && counter == 1) {
 
-             robot.stopWheels();
+                 robot.pickupArm.setPosition(0);
+                 robot.setWheelPower(0.5);
+                sleep(1005);
+                // sleep(1250);
 
-             boolean isVisible = skyStoneIdentification.identifyTarget(telemetry, robot, isRed);
+                 robot.stopWheels();
 
-             if (!isVisible) {
-                 robot.setWheelDirectionReverse();
-                 robot.setWheelPower(0.15);
-                 sleep(3000);
+                 boolean isVisible = skyStoneIdentification.identifyTarget(telemetry, robot, isRed, this);
 
-              /*  robot.setWheelPower(0.15);
-                sleep(500);*/
+                 if (!isVisible) {
+                     telemetry.addData("Not Visible", isVisible);
+                     telemetry.update();
+                     robot.setWheelDirectionReverse();
+                     robot.setWheelPower(0.25);
+                     sleep(1100);
+                 } else {
+                     telemetry.addData("Visible", isVisible);
+                     telemetry.update();
+                     robot.setWheelPowerForSide(0.25);
+                     sleep(1200);
 
-             } else {
+                     robot.setWheelDirectionReverse();
+                     robot.setWheelPower(0.25);
+                     sleep(1000);
 
-                 robot.setWheelPowerForSide(0.15);
+                 }
+
+                 robot.pickupArm.setPosition(0.90);   // Arm to grab.
+                 sleep(1000);
+                 robot.stopWheels();
+
+                 robot.setWheelDirectionForward();   // Go backward after picking up the block.
+                 robot.setWheelPower(0.35);
                  sleep(500);
+                 robot.stopWheels();
 
-                 robot.setWheelDirectionReverse();
-                 robot.setWheelPower(0.15);
-                 sleep(3000);
+                 turnRight90WithGryro();     // Turn Right 90 degrees.
+                 sleep(200);
+                 robot.stopWheels();
 
-             }
+                 robot.resetIfArmTouches();
 
-             robot.pickupArm.setPosition(0.85);   // Arm to grab.
-             sleep(1000);
-             robot.stopWheels();
+                 robot.setWheelDirectionReverse();   // Go forward crossing the bridge.*/
+                 stopAtRed(false);
+                 robot.setWheelPower(0.5);
+                 sleep(400);
+                 robot.stopWheels();
 
-             robot.setWheelDirectionForward();   // Go backward after picking up the block.
-             robot.setWheelPower(0.35);
-             sleep(1200);
-             robot.stopWheels();
+                 robot.resetIfArmTouches();
 
-             turnRight90WithGryro();     // Turn Right 90 degrees.
-             sleep(200);
-             robot.stopWheels();
-
-             robot.setWheelDirectionReverse();   // Go forward crossing the bridge.*/
-             stopAtRed(false);
-             robot.setWheelPower(0.5);
-             sleep(100);
-             robot.stopWheels();
-
-             robot.pickupArm.setPosition(0);
-             sleep(600);
-             robot.stopWheels();
+                 robot.pickupArm.setPosition(0);
+                 sleep(600);
+                 robot.stopWheels();
 
                  //Come back under the bridge
-             robot.setWheelDirectionForward();   // Go backward after picking up the block.
-             robot.setWheelPower(0.35);
-             stopAtRed(false);
+                 robot.setWheelDirectionForward();   // Go backward after picking up the block.
+                 robot.setWheelPower(0.35);
+                 stopAtRed(false);
 
-             counter++;
+                 counter++;
+             }
+         } catch(Exception ex) {
+             robot.stopWheels();
          }
 
     }
@@ -147,8 +156,10 @@ public class SkystonePickupRedBridge extends LinearOpMode {
         // make sure the imu gyro is calibrated before continuing.
         while (!isStopRequested() && !imu.isGyroCalibrated())
         {
+            robot.resetIfArmTouches();
             sleep(50);
             idle();
+
         }
         resetAngle(); // set heading to zero
     }
@@ -168,9 +179,9 @@ public class SkystonePickupRedBridge extends LinearOpMode {
      */
     public void turnRight90WithGryro() {
         heading = getAngle();
-        while (heading>-85.0) {
+        while (heading>-85.0 && opModeIsActive()) {
             heading = getAngle();
-            setMecanumPower(0, Math.PI/4, (RIGHT*Math.abs(-91-heading)/90)-0.1);
+            setMecanumPower(0, Math.PI/4, (RIGHT*Math.abs(-75-heading)/90)-0.2);
         }
     }
 
@@ -221,7 +232,7 @@ public class SkystonePickupRedBridge extends LinearOpMode {
 
 
     public void stopAtRed(boolean colorFound) {
-        while (colorFound == false) {
+        while (colorFound == false && opModeIsActive()) {
             Color.RGBToHSV((int)(robot.colorSensorRight.red() * 8), (int)(robot.colorSensorRight.green() *8), (int)(robot.colorSensorRight.blue() * 8), hsvValues);
 
             float hue = hsvValues[0];
