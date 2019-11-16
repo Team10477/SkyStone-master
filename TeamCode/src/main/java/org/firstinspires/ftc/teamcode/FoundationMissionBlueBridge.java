@@ -43,8 +43,6 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
 
             robot.setPosition(0); //Starting Position
 
-            sleep(1000);
-
             robot.setWheelPowerForSide(0.5);       // Move sideways.to left.
 
             sleep(1000);
@@ -83,7 +81,7 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
     }
 
     public void stopAtBlue(boolean colorFound) {
-        while (colorFound == false) {
+        while (colorFound == false  && opModeIsActive()) {
             Color.RGBToHSV((int)(robot.colorSensorRight.red() * 8), (int)(robot.colorSensorRight.green() *8), (int)(robot.colorSensorRight.blue() * 8), hsvValues);
 
             float hue = hsvValues[0];

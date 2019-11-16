@@ -42,8 +42,6 @@ public class FoundationMissionRedWall extends LinearOpMode {
         while (opModeIsActive() && counter == 1) {
             robot.setPosition(0); //Starting Position
 
-            sleep(1000);
-
             robot.setWheelPowerForSide(-0.5);       // Move sideways to right.
 
             sleep(1000);
@@ -80,7 +78,7 @@ public class FoundationMissionRedWall extends LinearOpMode {
     }
 
     public void stopAtRed(boolean colorFound) {
-        while (colorFound == false) {
+        while (colorFound == false  && opModeIsActive()) {
             Color.RGBToHSV((int)(robot.colorSensorRight.red() * 8), (int)(robot.colorSensorRight.green() *8), (int)(robot.colorSensorRight.blue() * 8), hsvValues);
 
             float hue = hsvValues[0];
