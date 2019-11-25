@@ -70,7 +70,7 @@ public class SkystonePickupRedBridge extends LinearOpMode {
 
                  robot.pickupArm.setPosition(0);
                  robot.setWheelPower(0.5);
-                sleep(1005);
+                sleep(1100);
                 // sleep(1250);
 
                  robot.stopWheels();
@@ -101,7 +101,7 @@ public class SkystonePickupRedBridge extends LinearOpMode {
 
                  robot.setWheelDirectionForward();   // Go backward after picking up the block.
                  robot.setWheelPower(0.35);
-                 sleep(500);
+                 sleep(700);
                  robot.stopWheels();
 
                  turnRight90WithGryro();     // Turn Right 90 degrees.
