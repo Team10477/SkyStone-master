@@ -77,6 +77,9 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
     private Servo frontArm = null;
     private ColorSensor sensorColor = null;
     private DistanceSensor sensorDistance = null;
+
+    double masterPowerScaleDrive = 1;
+    double masterPowerScaleTurn = 1;
     // hsvValues is an array that will hold the hue, saturation, and value information.
     float hsvValues[] = {0F, 0F, 0F};
 
@@ -113,10 +116,10 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftRearDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightRearDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightRearDrive.setDirection(DcMotor.Direction.FORWARD);
         linearSlide.setDirection(DcMotor.Direction.FORWARD);
         leftHand.setDirection(Servo.Direction.REVERSE);
         rightHand.setDirection(Servo.Direction.FORWARD);
@@ -149,6 +152,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
     @Override
+
+
     public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
         double leftFrontPower;
@@ -158,8 +163,6 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         double linearSlidePower;
         double servoPower;
         double frontArmPosition;
-
-
 
         // Choose to drive using either Tank Mode, or POV Mode
         // Comment out the method that's not used.  The default below is POV.
@@ -171,11 +174,27 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         double turn  =  -gamepad1.right_stick_x;
         double upDown = gamepad2.left_stick_y;
 
+       if(gamepad1.left_trigger>0||gamepad1.right_trigger>0){
+           masterPowerScaleDrive = Range.clip(masterPowerScaleDrive + 0.2, 0.2, 1.0);
+       }
+       if(gamepad1.left_bumper||gamepad1.right_bumper){
+           masterPowerScaleDrive = Range.clip(masterPowerScaleDrive - 0.2, 0.2, 1.0);
+       }
+       if(gamepad1.start){
+           masterPowerScaleTurn = Range.clip(masterPowerScaleTurn + 0.2, 0.2, 1.0);
+       }
+        if(gamepad1.back){
+            masterPowerScaleTurn = Range.clip(masterPowerScaleTurn - 0.2, 0.2, 1.0);
+        }
 
-        leftFrontPower   = Range.clip(drive+turn-strafe , -1.0, 1.0) ;
-        rightFrontPower  = Range.clip(drive-turn+strafe , -1.0, 1.0) ;
-        leftRearPower    = Range.clip(drive+turn+strafe , -1.0, 1.0) ;
-        rightRearPower   = Range.clip(drive-turn-strafe , -1.0, 1.0) ;
+       drive = drive*masterPowerScaleDrive;
+       strafe = strafe*masterPowerScaleDrive;
+       turn = turn*masterPowerScaleDrive*masterPowerScaleTurn;
+
+        leftFrontPower   = Range.clip(drive+turn-strafe , -1.0, 1.0);
+        rightFrontPower  = Range.clip(drive-turn+strafe , -1.0, 1.0);
+        leftRearPower    = Range.clip(drive+turn+strafe , -1.0, 1.0);
+        rightRearPower   = Range.clip(drive-turn-strafe , -1.0, 1.0);
 
 
         if (gamepad2.start){
@@ -253,6 +272,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         telemetry.addData("RGB:", "Red %d, Grn %d, Blu %d",sensorColor.red(),sensorColor.green(), sensorColor.blue());
         telemetry.addData("HSV:", "Hue %.0f, Sat %.1f, Val %.0f",hsvValues[0], hsvValues[1], hsvValues[2]);
         telemetry.addData("FrontArm",frontArm.getPosition());
+        telemetry.addData("MaterDrive",masterPowerScaleDrive);
+        telemetry.addData("MasterTurn",masterPowerScaleTurn);
 
         // change the background color to match the color detected by the RGB sensor.
         // pass a reference to the hue, saturation, and value array as an argument
