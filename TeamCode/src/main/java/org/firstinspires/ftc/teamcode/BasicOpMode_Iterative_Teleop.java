@@ -78,8 +78,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
     private ColorSensor sensorColor = null;
     private DistanceSensor sensorDistance = null;
 
-    double masterPowerScaleDrive = 1;
-    double masterPowerScaleTurn = 1;
+    double masterPowerScaleDrive = 0.4;
+    double masterPowerScaleTurn = 0.35;
     // hsvValues is an array that will hold the hue, saturation, and value information.
     float hsvValues[] = {0F, 0F, 0F};
 
@@ -175,21 +175,21 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         double upDown = gamepad2.left_stick_y;
 
        if(gamepad1.left_trigger>0||gamepad1.right_trigger>0){
-           masterPowerScaleDrive = Range.clip(masterPowerScaleDrive + 0.2, 0.2, 1.0);
+           masterPowerScaleDrive = 1.0; //Range.clip(masterPowerScaleDrive + 0.2, 0.2, 1.0);
        }
        if(gamepad1.left_bumper||gamepad1.right_bumper){
-           masterPowerScaleDrive = Range.clip(masterPowerScaleDrive - 0.2, 0.2, 1.0);
+           masterPowerScaleDrive = 0.4; //Range.clip(masterPowerScaleDrive - 0.2, 0.2, 1.0);
        }
        if(gamepad1.start){
-           masterPowerScaleTurn = Range.clip(masterPowerScaleTurn + 0.2, 0.2, 1.0);
+           masterPowerScaleTurn = 0.35; // Range.clip(masterPowerScaleTurn + 0.2, 0.2, 1.0);
        }
         if(gamepad1.back){
-            masterPowerScaleTurn = Range.clip(masterPowerScaleTurn - 0.2, 0.2, 1.0);
+            masterPowerScaleTurn = 0.2; //Range.clip(masterPowerScaleTurn - 0.2, 0.2, 1.0);
         }
 
        drive = drive*masterPowerScaleDrive;
        strafe = strafe*masterPowerScaleDrive;
-       turn = turn*masterPowerScaleDrive*masterPowerScaleTurn;
+       turn = turn*masterPowerScaleTurn;
 
         leftFrontPower   = Range.clip(drive+turn-strafe , -1.0, 1.0);
         rightFrontPower  = Range.clip(drive-turn+strafe , -1.0, 1.0);
