@@ -61,9 +61,6 @@ public class HardwarePushbot
     RevColorSensorV3 colorSensor = null;    // Hardware Device Object
     RevColorSensorV3 colorSensorRight = null;    // Hardware Device Object
 
-
-
-    /* local OpMode members. */
     HardwareMap hwMap           =  null;
 
     private ElapsedTime period  = new ElapsedTime();
@@ -139,12 +136,13 @@ public class HardwarePushbot
         rightBackWheel.setPower(-power);
     }
 
+
     // Set all motors to given power to strafe
     public void setWheelPowerForSide(double power) {
-        rightFrontWheel.setPower(power);
-        leftFrontWheel.setPower(-power);
-        leftBackWheel.setPower(power);
-        rightBackWheel.setPower(-power);
+        rightFrontWheel.setPower(-power);
+        leftFrontWheel.setPower(power);
+        leftBackWheel.setPower(-power);
+        rightBackWheel.setPower(power);
     }
 
     // Strafe Adjustment because robot tends to move backward during strafe.

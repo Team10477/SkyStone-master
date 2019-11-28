@@ -35,5 +35,17 @@ public class FoundationPushBot extends HardwarePushbot {
 
     }
 
+    public boolean isArmsUp() {
+        if ((leftArm.getPosition() > 0) || (rightArm.getPosition() > 0))
+            return false;
+        return true;
 
+    }
+
+    public boolean isArmsDown() {
+        if ((leftArm.getPosition() == 1) && (rightArm.getPosition() == 1))
+            return true;
+        return false;
+
+    }
 }

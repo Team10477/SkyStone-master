@@ -1,28 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.app.Activity;
-import android.graphics.Color;
-import android.view.View;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Foundation Mission Red Wall", group = "Mission")
 public class FoundationMissionRedWall extends LinearOpMode {
 
-    FoundationPushBot robot = new FoundationPushBot();
+    private FoundationPushBot robot = new FoundationPushBot();
 
-    private static final double WHEEL_MOVING_SPEED = 0.5;
+    private MyColorSensor myColorSensor = new MyColorSensor();
 
-    private static final double ARM_POSITION = 1;
+    private static final double WHEEL_MOVING_SPEED = 0.25;
 
-    private ElapsedTime period  = new ElapsedTime();
+    private static final double ARM_DOWN_POSITION = 1;
 
-    double timeTaken;
-
-    // hsvValues is an array that will hold the hue, saturation, and value information.
-    float hsvValues[] = {0F, 0F, 0F};
+    private static final double ARM_UP_POSITION = 0;
 
 
     @Override
@@ -30,86 +22,101 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
         robot.init(hardwareMap);  // Mapping between program and Robot.
 
-        period.reset();
-
-        enableColorSensor();
-
-        boolean colorFound = false;
+        myColorSensor.enableColorSensor(robot.colorSensorRight, hardwareMap);
 
         waitForStart();
 
         int counter = 1;
+
         while (opModeIsActive() && counter == 1) {
-            robot.setPosition(0); //Starting Position
 
-            robot.setWheelPowerForSide(-0.5);       // Move sideways to right.
+           resetArms();
 
-            sleep(1000);
+           moveToRight();
 
-            while (robot.touchSensor.getState()) {      // Go forward until touch sensor is pressed.
-                robot.setWheelPower(WHEEL_MOVING_SPEED);
-            }
+           goForwardUntilTouchSensorPressed();
 
-            robot.stopWheels();
+           moveArmsDown();
 
-            robot.setPosition(ARM_POSITION);        // Foundation Arms down
+           goBackwardUntilTouchSensorPressed();
 
-            sleep(1000);
+           moveArmsUp();
 
-            robot.setWheelDirectionReverse();
+           myColorSensor.strafeToGivenColor(this, robot.colorSensorRight, robot,MyColor.RED ,0.35);
 
-            while (robot.touchSensorFront.getState()) {      // Go backward until touch sensor is pressed.
-                robot.setWheelPower(WHEEL_MOVING_SPEED);
-            }
+           adjustStrafeLeft();
 
-            robot.stopWheels();
-
-            robot.setPosition(0);        //Foundation arm back to start position.
-
-            sleep(1000);
-
-            stopAtRed(false);
-
-            robot.setWheelPowerForSide(-0.5);
-            sleep(50);
-            counter++;
+           counter++;
         }
 
     }
 
-    public void stopAtRed(boolean colorFound) {
-        while (colorFound == false  && opModeIsActive()) {
-            Color.RGBToHSV((int)(robot.colorSensorRight.red() * 8), (int)(robot.colorSensorRight.green() *8), (int)(robot.colorSensorRight.blue() * 8), hsvValues);
+    /**
+     * Reset Arms to starting position.
+     */
+    private void resetArms() {
+        if (!robot.isArmsUp())
+            robot.setPosition(ARM_UP_POSITION); //Starting Position
 
-            float hue = hsvValues[0];
+    }
 
-            float saturation = hsvValues[1];
+    /**
+     * Strafe Robot to Right.
+     */
+    private void moveToRight() {
+        robot.setWheelPowerForSide(-0.5);
+        sleep(700);
+    }
 
-            telemetry.addData("Color Red", hue);
-            telemetry.update();
+    /**
+     * Go Forward Until touch sensor is pressed.
+     */
+    private void goForwardUntilTouchSensorPressed(){
 
-            boolean redHue = (hue < 60 || hue > 320) && (saturation > 0.5);
-            boolean blueHue = (hue > 180 && hue < 240) && (saturation > 0.5);
-
-            if (redHue)  {
-                robot.stopWheels();
-                colorFound = true;
-            }else {
-                robot.setWheelPowerForSide(-0.5);
-            }
+        while (robot.touchSensor.getState() && opModeIsActive()) {
+            robot.setWheelPowerBackward(WHEEL_MOVING_SPEED);
         }
+
+        robot.stopWheels();
     }
 
-    public void enableColorSensor() {
-
-        // values is a reference to the hsvValues array.
-        final float values[] = hsvValues;
-
-        final View relativeLayout = ((Activity)hardwareMap.appContext).findViewById(R.id.RelativeLayout);
-
-        robot.colorSensorRight.enableLed(true);
-
+    /**
+     *  Move Foundation Arms down.
+     */
+    private void moveArmsDown() {
+        robot.setPosition(ARM_DOWN_POSITION);
+        sleep(1500);
     }
+
+    /**
+     * Go backward until touch sensor is pressed.
+     */
+    private void goBackwardUntilTouchSensorPressed() {
+
+        robot.setWheelDirectionForward();
+        while (robot.touchSensorFront.getState() && opModeIsActive()) {
+            robot.setWheelPower(0.35);
+        }
+
+        robot.stopWheels();
+    }
+
+    /**
+     * Move the foundation arms up.
+     */
+    private void moveArmsUp() {
+        robot.setPosition(ARM_UP_POSITION);
+        sleep(500);
+    }
+
+    /**
+     * Strafe little left as adjustment to park under the bridge.
+     */
+    private void adjustStrafeLeft() {
+        robot.setWheelPowerForSide(WHEEL_MOVING_SPEED);
+        sleep(50);
+    }
+
 
 
 }
