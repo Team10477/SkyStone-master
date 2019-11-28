@@ -91,7 +91,7 @@ public class AutoDriveByTime_Linear_Gyro_SG extends LinearOpMode {
     double STRAFE_LEFT = -0.3;
     double STRAFE_RIGHT = 0.3;
     double deltaTurn = 0;
-    double GAIN_PROP = 0.02;
+    double GAIN_PROP = 0.015;
     double GAIN_INT = 0.015;
     double integralError =0;
     double error =0;
