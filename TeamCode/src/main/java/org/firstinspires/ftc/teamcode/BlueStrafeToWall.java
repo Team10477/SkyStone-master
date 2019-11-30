@@ -17,6 +17,8 @@ public class BlueStrafeToWall extends LinearOpMode {
 
     private static final double WHEEL_MOVING_SPEED = 0.35;
 
+    private static final double STRAFE_RIGHT = -0.35;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -31,7 +33,7 @@ public class BlueStrafeToWall extends LinearOpMode {
 
         while (opModeIsActive() && counter == 1) {
 
-            myColorSensor.strafeToGivenColor(this, robot.colorSensor, robot, MyColor.BLUE ,-0.35);
+            myColorSensor.strafeToGivenColor(this, robot.colorSensor, robot, MyColor.BLUE ,STRAFE_RIGHT);
 
             adjustStrafeRight();
 

@@ -16,6 +16,11 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
 
     private static final double ARM_UP_POSITION = 0;
 
+    private static final double STRAFE_LEFT = 0.5;
+
+    private static final double STRAFE_RIGHT = -0.35;
+
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,7 +47,7 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
 
             moveArmsUp();
 
-            myColorSensor.strafeToGivenColor(this, robot.colorSensor, robot, MyColor.BLUE ,-0.35);
+            myColorSensor.strafeToGivenColor(this, robot.colorSensor, robot, MyColor.BLUE ,STRAFE_RIGHT);
 
             goForwardNearBridge();
 
@@ -64,7 +69,7 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
      * Strafe Robot to Left.
      */
     private void moveToLeft() {
-        robot.setWheelPowerForSide(0.5);
+        robot.setWheelPowerForSide(STRAFE_LEFT);
         sleep(700);
     }
 

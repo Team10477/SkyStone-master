@@ -16,6 +16,10 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
     private static final double ARM_UP_POSITION = 0;
 
+    private static final double STRAFE_RIGHT = -0.5;
+
+    private static final double STRAFE_LEFT = -0.5;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,7 +46,7 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
            moveArmsUp();
 
-           myColorSensor.strafeToGivenColor(this, robot.colorSensorRight, robot,MyColor.RED ,0.35);
+           myColorSensor.strafeToGivenColor(this, robot.colorSensorRight, robot,MyColor.RED ,STRAFE_LEFT);
 
            adjustStrafeLeft();
 
@@ -64,7 +68,7 @@ public class FoundationMissionRedWall extends LinearOpMode {
      * Strafe Robot to Right.
      */
     private void moveToRight() {
-        robot.setWheelPowerForSide(-0.5);
+        robot.setWheelPowerForSide(STRAFE_RIGHT);
         sleep(700);
     }
 
