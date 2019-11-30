@@ -18,7 +18,7 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
     private static final double STRAFE_RIGHT = -0.5;
 
-    private static final double STRAFE_LEFT = -0.5;
+    private static final double STRAFE_LEFT = 0.35;
 
 
     @Override
