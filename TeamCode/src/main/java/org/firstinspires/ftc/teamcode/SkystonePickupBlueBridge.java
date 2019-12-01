@@ -7,6 +7,7 @@ import android.view.View;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous(name="Skystone Pickup Blue Bridge")
+@Disabled
 public class SkystonePickupBlueBridge extends LinearOpMode {
 
     SkystonePushBot robot = new SkystonePushBot();
@@ -58,7 +60,7 @@ public class SkystonePickupBlueBridge extends LinearOpMode {
         robot.init(hardwareMap);
         robot.setWheelDirectionReverse();
         initGryo();
-        skyStoneIdentification.initCamera(hardwareMap, robot.webcamName);
+     //   skyStoneIdentification.initCamera(hardwareMap, robot.webcamName);
         enableColorSensor();
 
         waitForStart();

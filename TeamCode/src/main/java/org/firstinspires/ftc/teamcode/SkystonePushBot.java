@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,7 +14,10 @@ public class SkystonePushBot extends HardwarePushbot {
 
     public Servo pickupArm = null;
     public DigitalChannel touchSensorPickupArm = null;
-    public WebcamName webcamName = null;
+
+    RevColorSensorV3 colorSensorFront = null;    // Hardware Device Object
+
+    //  public WebcamName webcamName = null;
 
     public SkystonePushBot(){
     }
@@ -25,7 +29,10 @@ public class SkystonePushBot extends HardwarePushbot {
         super.init(hwMap);
         pickupArm = hwMap.get(Servo.class, "front_arm");
         touchSensorPickupArm = hwMap.get(DigitalChannel.class, "touch_sensor_arm");
-        webcamName = hwMap.get(WebcamName.class, "Webcam1");
+
+        colorSensorFront = hwMap.get(RevColorSensorV3.class, "color_sensor_front");
+
+        //    webcamName = hwMap.get(WebcamName.class, "Webcam1");
 
 
     }
