@@ -55,33 +55,36 @@ public class FeedbackMovement {
         imu.initialize(parameters);
     }
 
-    public void StrafeWithAngle(double strafe, double turn, HardwarePushbot robot){
+    public void driveWithAngle(double drive, double strafe, double turn, HardwarePushbot robot){
 
-        leftFrontPower   = Range.clip(-turn+strafe , -1.0, 1.0);
-        rightFrontPower  = Range.clip(turn-strafe , -1.0, 1.0);
-        leftRearPower    = Range.clip(-turn-strafe , -1.0, 1.0);
-        rightRearPower   = Range.clip(turn+strafe , -1.0, 1.0);
+        leftFrontPower   = Range.clip(drive+turn-strafe , -1.0, 1.0);
+        rightFrontPower  = Range.clip(drive-turn+strafe , -1.0, 1.0);
+        leftRearPower    = Range.clip(drive+turn+strafe , -1.0, 1.0);
+        rightRearPower   = Range.clip(drive-turn-strafe , -1.0, 1.0);
+
         robot.leftFrontWheel.setPower(leftFrontPower);
         robot.rightFrontWheel.setPower(rightFrontPower);
         robot.leftBackWheel.setPower(leftRearPower);
         robot.rightBackWheel.setPower(rightRearPower);
     }
 
-    public void strafeWithFeedback(HardwarePushbot robot, double power) {
+
+
+    public void driveWithFeedback(HardwarePushbot robot, double drivePower, double strafePower) {
         heading = getAngle();
         error = (0-heading);
         integralError = integralError + (0-heading)*0.05;
         deltaTurn = error*GAIN_PROP + integralError*GAIN_INT;
 
-        StrafeWithAngle(power,deltaTurn, robot);
+        driveWithAngle(drivePower,strafePower, deltaTurn, robot);
     }
 
     public void initIntegralError(double power, HardwarePushbot robot) {
         integralError=0;
         error = 0;
-        StrafeWithAngle(power,0, robot);
-        robot.setWheelDirectionForward();
+        driveWithAngle(0, power,0, robot);
     }
+
 
     public void resetAngle()
     {

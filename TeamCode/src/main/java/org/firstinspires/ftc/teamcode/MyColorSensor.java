@@ -61,7 +61,7 @@ public class MyColorSensor {
         elapsedTime.reset();
         feedbackMovement.initIntegralError(power, robot);
 
-        while (colorFound == false && elapsedTime.seconds() < 10 && opMode.opModeIsActive()) {
+        while (colorFound == false && elapsedTime.seconds() < 4 && opMode.opModeIsActive()) {
             Color.RGBToHSV((int)(colorSensor.red() * 8), (int)(colorSensor.green() *8), (int)(colorSensor.blue() * 8), hsvValues);
 
             float hue = hsvValues[0];
@@ -87,8 +87,8 @@ public class MyColorSensor {
                 robot.stopWheels();
                 colorFound = true;
             }else {
-                robot.setWheelPowerForSide(power);
-               // feedbackMovement.strafeWithFeedback(robot, power);
+               // robot.setWheelPowerForSide(power);
+                feedbackMovement.driveWithFeedback(robot, 0, power);
             }
         }
     }
@@ -127,7 +127,7 @@ public class MyColorSensor {
                 colorFound = true;
             }else {
                // robot.setWheelPowerForSide(power);
-                feedbackMovement.strafeWithFeedback(robot, power);
+                feedbackMovement.driveWithFeedback(robot,0,  power);
             }
         }
     }
