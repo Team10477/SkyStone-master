@@ -106,14 +106,14 @@ public class HardwarePushbot
 
     }
 
-    public void setWheelDirectionForward() {
+    public void setWheelDirectionReverse() {
         leftFrontWheel.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightFrontWheel.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark mototor
         leftBackWheel.setDirection(DcMotor.Direction.FORWARD);
         rightBackWheel.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public void setWheelDirectionReverse() {
+    public void setWheelDirectionForward() {
         leftFrontWheel.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightFrontWheel.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark mototor
         leftBackWheel.setDirection(DcMotor.Direction.REVERSE);
