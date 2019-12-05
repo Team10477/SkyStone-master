@@ -11,6 +11,10 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
     private MyColorSensor myColorSensor = new MyColorSensor();
 
+    private FeedbackMovement feedbackMovement = new FeedbackMovement();
+
+    private ElapsedTime elapsedTime = new ElapsedTime();
+
     private static final double DRIVE_BACKWARD = 0.25;
 
     private static final double DRIVE_FORWARD = -0.35;
@@ -23,10 +27,6 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
     private static final double STRAFE_LEFT = -0.5;
 
-    private ElapsedTime elapsedTime = new ElapsedTime();
-
-    FeedbackMovement feedbackMovement = new FeedbackMovement();
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -34,8 +34,9 @@ public class FoundationMissionRedWall extends LinearOpMode {
         robot.init(hardwareMap);  // Mapping between program and Robot.
 
         myColorSensor.enableColorSensor(robot.colorSensorRight, hardwareMap);
+
         feedbackMovement.initializeImu(hardwareMap);
-        feedbackMovement.resetAngle();
+
         waitForStart();
 
         int counter = 1;
@@ -44,7 +45,7 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
            resetArms();
 
-            moveLeft();
+           moveLeft();
 
            goBackwardUntilTouchSensorPressed();
 
