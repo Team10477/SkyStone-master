@@ -23,21 +23,27 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import java.util.concurrent.TimeUnit;
 
 
-@Autonomous(name="Skystone Red Color Sensor")
-public class SkystoneRedColorSensor extends LinearOpMode {
+@Autonomous(name="Skystone Red Bridge")
+public class SkystoneRedColorSensorBridge extends LinearOpMode {
 
     SkystonePushBot robot = new SkystonePushBot();
 
     private MyColorSensor myColorSensor = new MyColorSensor();
 
-    FeedbackMovement feedback = new FeedbackMovement();
+    private FeedbackMovement feedbackMovement = new FeedbackMovement();
 
-    double STRAFE_RIGHT = 0.4;
-    double STRAFE_LEFT = -0.4;
+    private static final double STRAFE_RIGHT = 0.4;
+    private static final double STRAFE_LEFT = -0.5;
+    private static final double STRAFE_LEFT_BLACK = -0.35;
+    private static final double STRAFE_LEFT_SLOW = -0.30;
+    private static final double PICKUP_GRAB= 0.9;
+    private static final double DRIVE_FORWARD = -0.35;
+    private static final double DRIVE_FORWARD_SLOW = -0.2;
+    private static final double DRIVE_BACKWARD = 0.35;
 
     private ElapsedTime elapsedTime = new ElapsedTime();
 
-    private double milliseconds;
+    private double seconds;
 
 
     @Override
@@ -47,8 +53,7 @@ public class SkystoneRedColorSensor extends LinearOpMode {
 
         myColorSensor.enableColorSensor(robot.colorSensorFront, hardwareMap);
 
-        feedback.initializeImu(hardwareMap);
-        feedback.resetAngle();
+        feedbackMovement.initializeImu(hardwareMap);
 
         waitForStart();
 
@@ -58,22 +63,18 @@ public class SkystoneRedColorSensor extends LinearOpMode {
 
             goForwardBlind();
 
-            goForwardNearStone();
+            goForwardNearStone(9);
 
-            myColorSensor.strafeToGivenColorFeedback(telemetry, this, robot.colorSensorFront, robot, MyColor.BLACK, STRAFE_LEFT, feedback);
-
-            adjustStrafeToSide();
+            stopAtBlackSkystone();
 
             pickUpSkyStone();
 
             goBackward();
 
-            strafeRight();
+            strafeRight(500);
 
-            //Release the stone
             releaseSkyStone();
 
-            //Strafe to left and stop at Red
             strafeLeft();
 
             huntForSecondSkystone();
@@ -84,62 +85,68 @@ public class SkystoneRedColorSensor extends LinearOpMode {
     }
 
     private void goForwardBlind() {
-        robot.setWheelDirectionForward();
-        robot.setWheelPower(0.35);
-        sleep(700);
+        feedbackMovement.initIntegralError(DRIVE_FORWARD, robot);
+        feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD, 0);
+        sleep(500);
         robot.stopWheels();
     }
 
     /**
      *  Go forward Using Distance Sensor.
      */
-    private void goForwardNearStone() {
-
-        robot.setWheelDirectionForward();
+    private void goForwardNearStone(double givenDistance) {
+        // feedbackMovement.initIntegralError(DRIVE_FORWARD, robot);
         double distance = robot.colorSensorFront.getDistance(DistanceUnit.CM);
-        telemetry.addData("Distance", distance);
-        telemetry.update();
-        while (distance > 9 && opModeIsActive()) {
-            robot.setWheelPower(0.2);
-            telemetry.addData("Distance", distance);
-            telemetry.update();
+
+        while (distance > givenDistance && opModeIsActive()) {
+            feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD_SLOW , 0);
             distance = robot.colorSensorFront.getDistance(DistanceUnit.CM);
 
         }
+        telemetry.addData("Distance : ", distance);
+        telemetry.update();
         robot.stopWheels();
     }
 
-    private void adjustStrafeToSide() {
-        robot.setWheelPowerForSide(-0.30);
-        sleep(550);
+    private void stopAtBlackSkystone() {
+
+        myColorSensor.strafeToColorByTime(telemetry, this, robot.colorSensorFront, robot, MyColor.BLACK, STRAFE_LEFT_BLACK , feedbackMovement);
+
+        feedbackMovement.initIntegralError(STRAFE_LEFT_SLOW , robot);
+
+        feedbackMovement.driveWithFeedback(robot, 0, STRAFE_LEFT_SLOW);
+        sleep(500);
         robot.stopWheels();
     }
-
     private void pickUpSkyStone() {
-        robot.pickupArm.setPosition(.9);
+        robot.pickupArm.setPosition(PICKUP_GRAB);
         sleep(2000);
         robot.stopWheels();
     }
 
     private void goBackward() {
-        robot.setWheelDirectionReverse();
-        robot.setWheelPower(0.35);
+        feedbackMovement.initIntegralError(DRIVE_BACKWARD, robot);
+        feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD, 0);
         sleep(450);
         robot.stopWheels();
     }
 
-    private void strafeRight() {
-
+    private void strafeRight(long msecOvershoot) {
         elapsedTime.reset();
-        myColorSensor.strafeToGivenColorFeedback(telemetry, this, robot.colorSensor, robot, MyColor.RED, STRAFE_RIGHT, feedback);
+
+        myColorSensor.strafeToGivenColorFeedback(telemetry, this, robot.colorSensor, robot, MyColor.RED, STRAFE_RIGHT, feedbackMovement );
 
         // More strafing after detecting Red line under bridge.
-        robot.setWheelPowerForSide(STRAFE_RIGHT);
-        sleep(600);
-        milliseconds = elapsedTime.seconds();
-        telemetry.addData("Strafe right time : ", milliseconds);
+        feedbackMovement.driveWithFeedback(robot, 0, STRAFE_RIGHT);
+        sleep(msecOvershoot);
+       // sleep(500);
+        seconds = elapsedTime.seconds() ;
+        seconds *= .6;
+        telemetry.addData("Strafe right time : ", seconds);
         telemetry.update();
+
         robot.stopWheels();
+
     }
 
     private void releaseSkyStone() {
@@ -149,39 +156,38 @@ public class SkystoneRedColorSensor extends LinearOpMode {
     }
 
     private void strafeLeft() {
-     //   robot.setWheelPowerForSide(0.5);
-       // myColorSensor.strafeToGivenColorFeedback(telemetry,this, robot.colorSensor, robot, MyColor.RED, STRAFE_LEFT, feedback);
         elapsedTime.reset();
-        while (elapsedTime.seconds() < milliseconds) {
-           // robot.setWheelPowerForSide(STRAFE_LEFT);
-            feedback.strafeWithFeedback(robot, STRAFE_LEFT);
+        feedbackMovement.initIntegralError(STRAFE_LEFT, robot);
+        while (elapsedTime.seconds() < seconds  && opModeIsActive()) {
+            feedbackMovement.driveWithFeedback(robot, 0, STRAFE_LEFT);
         }
-      //  sleep(new Double(milliseconds * 1000).longValue());
-        //  stop at red
-       robot.stopWheels();
+
+        robot.stopWheels();
     }
 
     private void huntForSecondSkystone() {
-        goForwardNearStone();
+        goForwardNearStone(7);
 
-        myColorSensor.strafeToGivenColorFeedback(telemetry, this, robot.colorSensorFront, robot, MyColor.BLACK, STRAFE_LEFT, feedback);
-
-        adjustStrafeToSide();
+        stopAtBlackSkystone();
 
         pickUpSkyStone();
 
+        robot.resetIfArmTouches();
+
         goBackward();
 
-        strafeRight();
+        robot.resetIfArmTouches();
 
-        //Release the stone
+        strafeRight(300);
+
         releaseSkyStone();
 
         parkUnderBridge();
     }
 
+
     private void parkUnderBridge() {
-        myColorSensor.strafeToGivenColorFeedback(telemetry,this, robot.colorSensor, robot, MyColor.RED, STRAFE_LEFT, feedback);
+        myColorSensor.strafeToGivenColorFeedback(telemetry,this, robot.colorSensor, robot, MyColor.RED, STRAFE_LEFT, feedbackMovement);
     }
 
 }
