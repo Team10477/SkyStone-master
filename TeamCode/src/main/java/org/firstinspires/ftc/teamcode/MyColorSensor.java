@@ -121,6 +121,7 @@ public class MyColorSensor {
             telemetry.addData("black hue", hue);
             telemetry.addData("black saturation", saturation);
             telemetry.addData("black value", value);
+            telemetry.update();
 
             if ((myColor == MyColor.RED && redHue )  || (myColor == MyColor.BLUE && blueHue) || (myColor == MyColor.BLACK && blackHue)){
                 robot.stopWheels();
