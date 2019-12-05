@@ -68,8 +68,6 @@ public class FeedbackMovement {
         robot.rightBackWheel.setPower(rightRearPower);
     }
 
-
-
     public void driveWithFeedback(HardwarePushbot robot, double drivePower, double strafePower) {
         heading = getAngle();
         error = (0-heading);
@@ -83,13 +81,13 @@ public class FeedbackMovement {
         integralError=0;
         error = 0;
         driveWithAngle(0, power,0, robot);
+        resetAngle();
     }
 
 
     public void resetAngle()
     {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
         globalAngle = 0;
     }
 
