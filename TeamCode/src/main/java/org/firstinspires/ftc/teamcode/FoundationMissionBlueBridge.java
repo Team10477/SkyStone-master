@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Foundation Mission Blue Bridge", group = "Mission")
 public class FoundationMissionBlueBridge extends LinearOpMode {
@@ -10,16 +11,23 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
 
     private MyColorSensor myColorSensor = new MyColorSensor();
 
-    private static final double WHEEL_MOVING_SPEED = 0.25;
+    private FeedbackMovement feedbackMovement = new FeedbackMovement();
+
+    private ElapsedTime elapsedTime = new ElapsedTime();
+
+    private static final double DRIVE_BACKWARD = 0.25;
+
+    private static final double DRIVE_FORWARD = -0.35;
+
+    private static final double DRIVE_BACKWARD_MORE_POWER = 0.35;
 
     private static final double ARM_DOWN_POSITION = 1;
 
     private static final double ARM_UP_POSITION = 0;
 
-    private static final double STRAFE_LEFT = 0.5;
+    private static final double STRAFE_RIGHT = 0.35;
 
-    private static final double STRAFE_RIGHT = -0.35;
-
+    private static final double STRAFE_LEFT = -0.5;
 
 
     @Override
@@ -29,6 +37,8 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
 
         myColorSensor.enableColorSensor(robot.colorSensor, hardwareMap);
 
+        feedbackMovement.initializeImu(hardwareMap);
+
         waitForStart();
 
         int counter = 1;
@@ -37,19 +47,19 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
 
             resetArms();
 
-            moveToLeft();
-
-            goForwardUntilTouchSensorPressed();
-
-            moveArmsDown();
+            moveToRight();
 
             goBackwardUntilTouchSensorPressed();
 
+            moveArmsDown();
+
+            goForwardUntilTouchSensorPressed();
+
             moveArmsUp();
 
-            myColorSensor.strafeToGivenColor(this, robot.colorSensor, robot, MyColor.BLUE ,STRAFE_RIGHT);
+            moveLeftUntilBlue();
 
-            goForwardNearBridge();
+            goBackwardNearBridge();
 
             counter++;
         }
@@ -66,24 +76,25 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
     }
 
     /**
-     * Strafe Robot to Left.
+     * Strafe Robot to Right.
      */
-    private void moveToLeft() {
-        robot.setWheelPowerForSide(STRAFE_LEFT);
+    private void moveToRight() {
+        feedbackMovement.initIntegralError(STRAFE_RIGHT, robot);
+        feedbackMovement.driveWithFeedback(robot, 0, STRAFE_RIGHT);
         sleep(700);
     }
 
     /**
-     * Go Forward Until touch sensor is pressed.
+     * Go Backward Until touch sensor is pressed.
      */
-    private void goForwardUntilTouchSensorPressed(){
-
+    private void goBackwardUntilTouchSensorPressed(){
+        feedbackMovement.initIntegralError(DRIVE_BACKWARD, robot);
         while (robot.touchSensor.getState() && opModeIsActive()) {
-            robot.setWheelPowerBackward(WHEEL_MOVING_SPEED);
+            feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD, 0);
         }
-
         robot.stopWheels();
     }
+
 
     /**
      *  Move Foundation Arms down.
@@ -94,13 +105,14 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
     }
 
     /**
-     * Go backward until touch sensor is pressed.
+     * Go Forward until touch sensor is pressed.
      */
-    private void goBackwardUntilTouchSensorPressed() {
+    private void goForwardUntilTouchSensorPressed() {
 
-        robot.setWheelDirectionForward();
-        while (robot.touchSensorFront.getState() && opModeIsActive()) {
-            robot.setWheelPower(0.35);
+        elapsedTime.reset();
+        feedbackMovement.initIntegralError(DRIVE_FORWARD, robot);
+        while ((robot.touchSensorFront.getState() || elapsedTime.seconds() < 4) && opModeIsActive())  {
+            feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD, 0);
         }
 
         robot.stopWheels();
@@ -117,15 +129,20 @@ public class FoundationMissionBlueBridge extends LinearOpMode {
     /**
      * Strafe little left as adjustment under the bridge.
      */
-    private void adjustStrafeRight() {
-        robot.setWheelPowerForSide(-0.35);
+    private void  moveLeftUntilBlue()  {
+        feedbackMovement.initIntegralError(STRAFE_LEFT, robot);
+
+        myColorSensor.strafeToGivenColorFeedback(telemetry,this, robot.colorSensor, robot,MyColor.BLUE ,STRAFE_LEFT, feedbackMovement);
+
+        feedbackMovement.driveWithFeedback(robot, 0, STRAFE_LEFT);
+
         sleep(50);
     }
 
 
-    private void goForwardNearBridge() {
-        robot.setWheelDirectionReverse();
-        robot.setWheelPower(0.35);
+    private void goBackwardNearBridge() {
+        feedbackMovement.initIntegralError(DRIVE_BACKWARD_MORE_POWER, robot);
+        feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD_MORE_POWER, 0);
         sleep(900);
     }
 

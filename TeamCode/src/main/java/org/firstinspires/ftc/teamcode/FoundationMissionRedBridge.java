@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Foundation Mission Red Bridge", group = "Mission")
 public class FoundationMissionRedBridge extends LinearOpMode {
@@ -10,15 +11,24 @@ public class FoundationMissionRedBridge extends LinearOpMode {
 
     private MyColorSensor myColorSensor = new MyColorSensor();
 
-    private static final double WHEEL_MOVING_SPEED = 0.25;
+    private FeedbackMovement feedbackMovement = new FeedbackMovement();
+
+    private ElapsedTime elapsedTime = new ElapsedTime();
+
+    private static final double DRIVE_BACKWARD = 0.25;
+
+    private static final double DRIVE_FORWARD = -0.35;
+
+    private static final double DRIVE_BACKWARD_MORE_POWER = 0.35;
 
     private static final double ARM_DOWN_POSITION = 1;
 
     private static final double ARM_UP_POSITION = 0;
 
-    private static final double STRAFE_RIGHT = -0.5;
+    private static final double STRAFE_RIGHT = 0.35;
 
-    private static final double STRAFE_LEFT = 0.35;
+    private static final double STRAFE_LEFT = -0.5;
+
 
 
     @Override
@@ -28,6 +38,8 @@ public class FoundationMissionRedBridge extends LinearOpMode {
 
         myColorSensor.enableColorSensor(robot.colorSensorRight, hardwareMap);
 
+        feedbackMovement.initializeImu(hardwareMap);
+
         waitForStart();
 
         int counter = 1;
@@ -36,19 +48,19 @@ public class FoundationMissionRedBridge extends LinearOpMode {
 
             resetArms();
 
-            moveToRight();
-
-            goForwardUntilTouchSensorPressed();
-
-            moveArmsDown();
+            moveLeft();
 
             goBackwardUntilTouchSensorPressed();
 
+            moveArmsDown();
+
+            goForwardUntilTouchSensorPressed();
+
             moveArmsUp();
 
-            myColorSensor.strafeToGivenColor(this, robot.colorSensorRight, robot,MyColor.RED ,STRAFE_LEFT);
+            moveRightUntilRed();
 
-            goForwardNearBridge();
+            goBackwardNearBridge();
 
             counter++;
         }
@@ -65,24 +77,26 @@ public class FoundationMissionRedBridge extends LinearOpMode {
     }
 
     /**
-     * Strafe Robot to Right.
+     * Strafe Robot to Left.
      */
-    private void moveToRight() {
-        robot.setWheelPowerForSide(STRAFE_RIGHT);
+    private void moveLeft() {
+        feedbackMovement.initIntegralError(STRAFE_LEFT, robot);
+        feedbackMovement.driveWithFeedback(robot, 0, STRAFE_LEFT);
         sleep(700);
     }
 
     /**
-     * Go Forward Until touch sensor is pressed.
+     * Go Backward Until touch sensor is pressed.
      */
-    private void goForwardUntilTouchSensorPressed(){
+    private void goBackwardUntilTouchSensorPressed(){
 
+        feedbackMovement.initIntegralError(DRIVE_BACKWARD, robot);
         while (robot.touchSensor.getState() && opModeIsActive()) {
-            robot.setWheelPowerBackward(WHEEL_MOVING_SPEED);
+            feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD, 0);
         }
-
         robot.stopWheels();
     }
+
 
     /**
      *  Move Foundation Arms down.
@@ -96,15 +110,17 @@ public class FoundationMissionRedBridge extends LinearOpMode {
     /**
      * Go backward until touch sensor is pressed.
      */
-    private void goBackwardUntilTouchSensorPressed() {
+    private void goForwardUntilTouchSensorPressed() {
 
-        robot.setWheelDirectionForward();
-        while (robot.touchSensorFront.getState() && opModeIsActive()) {
-            robot.setWheelPower(0.35);
+        elapsedTime.reset();
+        feedbackMovement.initIntegralError(DRIVE_FORWARD, robot);
+        while ((robot.touchSensorFront.getState() || elapsedTime.seconds() < 4) && opModeIsActive())  {
+            feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD, 0);
         }
 
         robot.stopWheels();
     }
+
 
     /**
      * Move the foundation arms up.
@@ -115,19 +131,24 @@ public class FoundationMissionRedBridge extends LinearOpMode {
     }
 
     /**
-     * Strafe little left as adjustment under the bridge.
+     * Strafe little left as adjustment to park under the bridge.
      */
-    private void adjustStrafeLeft() {
-        robot.setWheelPowerForSide(WHEEL_MOVING_SPEED);
+    private void moveRightUntilRed() {
+
+        feedbackMovement.initIntegralError(STRAFE_RIGHT, robot);
+
+        myColorSensor.strafeToGivenColorFeedback(telemetry,this, robot.colorSensorRight, robot,MyColor.RED ,STRAFE_RIGHT, feedbackMovement);
+
+        feedbackMovement.driveWithFeedback(robot, 0, STRAFE_RIGHT);
+
         sleep(50);
     }
-
     /**
      * Go Forward for few seconds to park near the bridge.
      */
-    private void goForwardNearBridge() {
-        robot.setWheelDirectionReverse();
-        robot.setWheelPower(0.35);
+    private void goBackwardNearBridge() {
+        feedbackMovement.initIntegralError(DRIVE_BACKWARD, robot);
+        feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD_MORE_POWER, 0);
         sleep(900);
     }
 }
