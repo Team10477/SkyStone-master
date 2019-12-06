@@ -53,6 +53,7 @@ public class FeedbackMovement {
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+        resetAngle();
     }
 
     public void driveWithAngle(double drive, double strafe, double turn, HardwarePushbot robot){
@@ -81,7 +82,7 @@ public class FeedbackMovement {
         integralError=0;
         error = 0;
         driveWithAngle(0, power,0, robot);
-        resetAngle();
+      //  resetAngle();
     }
 
 
