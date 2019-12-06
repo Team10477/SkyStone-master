@@ -22,7 +22,7 @@ public class SkystoneRedColorSensorWall extends LinearOpMode {
     private static final double STRAFE_LEFT_SLOW = -0.30;
     private static final double PICKUP_GRAB= 0.9;
     private static final double DRIVE_FORWARD = -0.35;
-    private static final double DRIVE_FORWARD_SLOW = -0.2;
+    private static final double DRIVE_FORWARD_SLOW = -0.15;
     private static final double DRIVE_BACKWARD = 0.35;
 
     private ElapsedTime elapsedTime = new ElapsedTime();
@@ -45,9 +45,9 @@ public class SkystoneRedColorSensorWall extends LinearOpMode {
 
         while (opModeIsActive() && counter == 1) {
 
-            goForwardBlind();
+            goForwardBlind(500);
 
-            goForwardNearStone(9);
+            goForwardNearStone(5);
 
             stopAtBlackSkystone();
 
@@ -55,7 +55,7 @@ public class SkystoneRedColorSensorWall extends LinearOpMode {
 
             robot.resetIfArmTouches();
 
-            goBackward();
+            goBackward(450);
 
             strafeRight(500);
 
@@ -70,10 +70,11 @@ public class SkystoneRedColorSensorWall extends LinearOpMode {
 
     }
 
-    private void goForwardBlind() {
+    private void goForwardBlind(long msecDuration) {
         feedbackMovement.initIntegralError(DRIVE_FORWARD, robot);
         feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD, 0);
-        sleep(500);
+      //  sleep(500);
+        sleep(msecDuration);
         robot.stopWheels();
     }
 
@@ -98,33 +99,41 @@ public class SkystoneRedColorSensorWall extends LinearOpMode {
 
         feedbackMovement.initIntegralError(STRAFE_LEFT_SLOW , robot);
         feedbackMovement.driveWithFeedback(robot, 0, STRAFE_LEFT_SLOW);
-        sleep(500);
+        sleep(450);
+
+        feedbackMovement.initIntegralError(DRIVE_FORWARD_SLOW , robot);
+        feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD_SLOW , 0);
+        sleep(100);
         robot.stopWheels();
     }
 
     private void pickUpSkyStone() {
         robot.pickupArm.setPosition(PICKUP_GRAB);
         sleep(2000);
+        robot.resetIfArmTouches();
         robot.stopWheels();
     }
 
-    private void goBackward() {
+    private void goBackward(long msecOffset) {
         feedbackMovement.initIntegralError(DRIVE_BACKWARD, robot);
         feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD, 0);
-        sleep(1350);
+        sleep(msecOffset);
+        robot.resetIfArmTouches();
+        //sleep(1350);
         robot.stopWheels();
     }
 
     private void strafeRight(long msecOvershoot) {
         elapsedTime.reset();
 
-        myColorSensor.strafeToGivenColorFeedback(telemetry, this, robot.colorSensor, robot, MyColor.RED, STRAFE_RIGHT, feedbackMovement );
+        myColorSensor.strafeToGivenColorFeedbackWithArm(telemetry, this, robot.colorSensor, robot, MyColor.RED, STRAFE_RIGHT, feedbackMovement );
 
+        robot.resetIfArmTouches();
         // More strafing after detecting Red line under bridge.
         feedbackMovement.driveWithFeedback(robot, 0, STRAFE_RIGHT);
         sleep(msecOvershoot);
         seconds = elapsedTime.seconds();
-        seconds *= .7;
+        seconds *= .75;
         telemetry.addData("Strafe right time : ", seconds);
         telemetry.update();
         robot.stopWheels();
@@ -147,9 +156,9 @@ public class SkystoneRedColorSensorWall extends LinearOpMode {
     }
 
     private void huntForSecondSkystone() {
-        goForwardBlind();
+        goForwardBlind(250);
 
-        goForwardNearStone(7);
+        goForwardNearStone(5);
 
         stopAtBlackSkystone();
 
@@ -157,7 +166,7 @@ public class SkystoneRedColorSensorWall extends LinearOpMode {
 
         robot.resetIfArmTouches();
 
-        goBackward();
+        goBackward(1350);
 
         robot.resetIfArmTouches();
 
