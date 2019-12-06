@@ -88,7 +88,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
 
     // sometimes it helps to multiply the raw RGB values with a scale factor
     // to amplify/attentuate the measured values.
-    final double SCALE_FACTOR = 255;
+    //final double SCALE_FACTOR = 255;
+    final double SCALE_FACTOR = 8;
     // get a reference to the RelativeLayout so we can change the background
     // color of the Robot Controller app to match the hue detected by the RGB sensor.
  //   int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
@@ -111,8 +112,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         leftHand = hardwareMap.get(Servo.class,"left_hand");
         rightHand = hardwareMap.get(Servo.class,"right_hand");
         frontArm = hardwareMap.get(Servo.class,"front_arm");
-        sensorColor = hardwareMap.get(ColorSensor.class, "color_sensor");
-        sensorDistance = hardwareMap.get(DistanceSensor.class, "color_sensor");
+        sensorColor = hardwareMap.get(ColorSensor.class, "color_sensor_front");
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "color_sensor_front");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
