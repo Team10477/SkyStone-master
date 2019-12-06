@@ -15,9 +15,10 @@ public class BlueStrafeToWall extends LinearOpMode {
 
     private MyColorSensor myColorSensor = new MyColorSensor();
 
-    private static final double WHEEL_MOVING_SPEED = 0.35;
+    private FeedbackMovement feedbackMovement = new FeedbackMovement();
 
-    private static final double STRAFE_RIGHT = -0.35;
+    private static final double STRAFE_RIGHT= 0.35;
+
 
 
     @Override
@@ -25,7 +26,9 @@ public class BlueStrafeToWall extends LinearOpMode {
 
         robot.init(hardwareMap);  // Mapping between program and Robot.
 
-        myColorSensor.enableColorSensor(robot.colorSensor, hardwareMap);
+        myColorSensor.enableColorSensor(robot.colorSensorRight, hardwareMap);
+
+        feedbackMovement.initializeImu(hardwareMap);
 
         waitForStart();
 
@@ -33,7 +36,7 @@ public class BlueStrafeToWall extends LinearOpMode {
 
         while (opModeIsActive() && counter == 1) {
 
-            myColorSensor.strafeToGivenColor(this, robot.colorSensor, robot, MyColor.BLUE ,STRAFE_RIGHT);
+            myColorSensor.strafeToGivenColorFeedback(telemetry,this, robot.colorSensorRight, robot, MyColor.BLUE, STRAFE_RIGHT, feedbackMovement);
 
             adjustStrafeRight();
 
@@ -46,7 +49,8 @@ public class BlueStrafeToWall extends LinearOpMode {
      * Strafe little left as adjustment under the bridge.
      */
     private void adjustStrafeRight() {
-        robot.setWheelPowerForSide(-0.35);
+        feedbackMovement.initIntegralError(STRAFE_RIGHT, robot);
+        feedbackMovement.driveWithFeedback(robot, 0, STRAFE_RIGHT);
         sleep(50);
     }
 
