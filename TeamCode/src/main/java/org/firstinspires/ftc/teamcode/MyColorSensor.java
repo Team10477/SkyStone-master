@@ -130,6 +130,50 @@ public class MyColorSensor {
                // robot.setWheelPowerForSide(power);
                 feedbackMovement.driveWithFeedback(robot,0,  power);
             }
+
+        }
+    }
+
+    public void strafeToGivenColorFeedbackWithArm(Telemetry telemetry, LinearOpMode opMode, RevColorSensorV3 colorSensor, SkystonePushBot robot, MyColor myColor, double power, FeedbackMovement feedbackMovement ) {
+        boolean colorFound = false;
+        elapsedTime.reset();
+        feedbackMovement.initIntegralError(power, robot);
+        while (colorFound == false && opMode.opModeIsActive()) {
+            Color.RGBToHSV((int)(colorSensor.red() * 8), (int)(colorSensor.green() *8), (int)(colorSensor.blue() * 8), hsvValues);
+
+            float hue = hsvValues[0];
+
+            float saturation = hsvValues[1];
+
+            float value = hsvValues[2];
+
+            telemetry.addData("black hue top ", hue);
+            telemetry.addData("black saturation top ", saturation);
+            telemetry.addData("black value top", value);
+
+            boolean redHue = (hue < 60 || hue > 320) && (saturation > 0.5);
+
+            boolean blueHue = (hue > 180 && hue < 240) && (saturation > 0.5);
+
+            boolean blackHue = hue > 100 && saturation < 0.6 && value > 8 ;
+
+            boolean yellow = hue <100 && saturation > 0.6 && value > 10;
+
+            telemetry.addData("black hue", hue);
+            telemetry.addData("black saturation", saturation);
+            telemetry.addData("black value", value);
+            telemetry.update();
+
+            if ((myColor == MyColor.RED && redHue )  || (myColor == MyColor.BLUE && blueHue) || (myColor == MyColor.BLACK && blackHue)){
+                robot.stopWheels();
+                colorFound = true;
+            }else {
+                // robot.setWheelPowerForSide(power);
+                feedbackMovement.driveWithFeedback(robot,0,  power);
+            }
+
+            robot.resetIfArmTouches();
+
         }
     }
 
