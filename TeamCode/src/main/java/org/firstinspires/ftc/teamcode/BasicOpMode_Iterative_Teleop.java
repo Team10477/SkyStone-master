@@ -35,6 +35,7 @@ import android.view.View;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -74,6 +75,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
     private DcMotor linearSlide = null;
     private Servo leftHand = null;
     private Servo rightHand = null;
+    private Servo capstoneLeft = null;
+    private Servo capstoneRight = null;
     private Servo frontArm = null;
     private ColorSensor sensorColor = null;
     private DistanceSensor sensorDistance = null;
@@ -112,6 +115,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         leftHand = hardwareMap.get(Servo.class,"left_hand");
         rightHand = hardwareMap.get(Servo.class,"right_hand");
         frontArm = hardwareMap.get(Servo.class,"front_arm");
+        capstoneLeft=hardwareMap.get(Servo.class,"capstone_left");
+        capstoneRight=hardwareMap.get(Servo.class,"capstone_right");
         sensorColor = hardwareMap.get(ColorSensor.class, "color_sensor_front");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "color_sensor_front");
 
@@ -124,6 +129,8 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         linearSlide.setDirection(DcMotor.Direction.FORWARD);
         leftHand.setDirection(Servo.Direction.REVERSE);
         rightHand.setDirection(Servo.Direction.FORWARD);
+        capstoneLeft.setDirection(Servo.Direction.FORWARD);
+        capstoneRight.setDirection(Servo.Direction.FORWARD);
 
         linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -219,6 +226,19 @@ public class BasicOpMode_Iterative_Teleop extends OpMode
         {
             linearSlidePower = -0.2;
         }
+        if (gamepad1.a){
+            capstoneLeft.setPosition(1.0);
+            capstoneRight.setPosition(0.0);
+        }
+        if (gamepad1.y){
+            capstoneLeft.setPosition(0.0);
+            capstoneRight.setPosition(1.0);
+        }
+        if (gamepad1.b){
+            capstoneLeft.setPosition(0.5);
+            capstoneRight.setPosition(0.35125);
+        }
+
 
 /***
 
