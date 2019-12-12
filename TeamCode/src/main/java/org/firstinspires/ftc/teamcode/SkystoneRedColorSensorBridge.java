@@ -10,6 +10,7 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -134,7 +135,7 @@ public class SkystoneRedColorSensorBridge extends LinearOpMode {
     private void goBackward() {
         feedbackMovement.initIntegralError(DRIVE_BACKWARD, robot);
         feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD, 0);
-        sleep(450);
+        sleep(550);
         robot.resetIfArmTouches();
         robot.stopWheels();
     }
@@ -177,7 +178,7 @@ public class SkystoneRedColorSensorBridge extends LinearOpMode {
 
         goForwardBlind(250);
 
-        goForwardNearStone(7);
+        goForwardNearStone(5);
 
         stopAtBlackSkystone();
 
