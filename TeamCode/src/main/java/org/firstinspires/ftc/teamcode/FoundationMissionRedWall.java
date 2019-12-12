@@ -107,7 +107,7 @@ public class FoundationMissionRedWall extends LinearOpMode {
 
         elapsedTime.reset();
         feedbackMovement.initIntegralError(DRIVE_FORWARD, robot);
-        while ((robot.touchSensorFront.getState() || elapsedTime.seconds() < 4) && opModeIsActive())  {
+        while ((robot.touchSensorFront.getState() && elapsedTime.seconds() < 3) && opModeIsActive())  {
                feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD, 0);
         }
 

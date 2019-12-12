@@ -25,7 +25,7 @@ public class FoundationMissionBlueWall extends LinearOpMode {
 
     private static final double ARM_UP_POSITION = 0;
 
-    private static final double STRAFE_RIGHT = 0.35;
+    private static final double STRAFE_RIGHT = 0.5;
 
     private static final double STRAFE_LEFT = -0.5;
 
@@ -109,7 +109,7 @@ public class FoundationMissionBlueWall extends LinearOpMode {
 
         elapsedTime.reset();
         feedbackMovement.initIntegralError(DRIVE_FORWARD, robot);
-        while ((robot.touchSensorFront.getState() || elapsedTime.seconds() < 4) && opModeIsActive())  {
+        while ((robot.touchSensorFront.getState() && elapsedTime.seconds() < 3) && opModeIsActive())  {
             feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD, 0);
         }
 
