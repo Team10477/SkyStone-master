@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -15,7 +16,7 @@ public class SkystonePushBot extends HardwarePushbot {
     public Servo pickupArm = null;
     public DigitalChannel touchSensorPickupArm = null;
 
-    RevColorSensorV3 colorSensorFront = null;    // Hardware Device Object
+    public RevColorSensorV3 colorSensorFront = null;    // Hardware Device Object
 
     //  public WebcamName webcamName = null;
 
