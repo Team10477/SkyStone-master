@@ -23,6 +23,7 @@ public class SkystoneBlueColorSensorBridge extends LinearOpMode {
     private static final double PICKUP_GRAB= 0.9;
     private static final double DRIVE_FORWARD = -0.35;
     private static final double DRIVE_FORWARD_SLOW = -0.15;
+    private static final double DRIVE_FORWARD_SLOW_PICKUP = -0.2;
     private static final double DRIVE_BACKWARD = 0.35;
 
     private ElapsedTime elapsedTime = new ElapsedTime();
@@ -47,7 +48,7 @@ public class SkystoneBlueColorSensorBridge extends LinearOpMode {
 
             goForwardBlind(500);
 
-            goForwardNearStone(5);
+            goForwardNearStone(6);
 
             stopAtBlackSkystone(750);
 
@@ -100,9 +101,9 @@ public class SkystoneBlueColorSensorBridge extends LinearOpMode {
         feedbackMovement.driveWithFeedback(robot, 0, STRAFE_LEFT_SLOW);
         sleep(msecDeltaStrafe);
 
-        feedbackMovement.initIntegralError(DRIVE_FORWARD_SLOW , robot);
-        feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD_SLOW , 0);
-        sleep(100);
+        feedbackMovement.initIntegralError(DRIVE_FORWARD_SLOW_PICKUP , robot);
+        feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD_SLOW_PICKUP , 0);
+        sleep(125);
 
         robot.stopWheels();
     }
@@ -117,7 +118,7 @@ public class SkystoneBlueColorSensorBridge extends LinearOpMode {
     private void goBackward() {
         feedbackMovement.initIntegralError(DRIVE_BACKWARD, robot);
         feedbackMovement.driveWithFeedback(robot,DRIVE_BACKWARD, 0);
-        sleep(600);
+        sleep(350);
         robot.resetIfArmTouches();
         robot.stopWheels();
     }
@@ -133,7 +134,7 @@ public class SkystoneBlueColorSensorBridge extends LinearOpMode {
         sleep(msecOvershoot);
         // sleep(500);
         seconds = elapsedTime.seconds() ;
-        seconds *= .75;
+        seconds *= .7;
         telemetry.addData("Strafe right time : ", seconds);
         telemetry.update();
 
@@ -157,11 +158,11 @@ public class SkystoneBlueColorSensorBridge extends LinearOpMode {
     }
 
     private void huntForSecondSkystone() {
-        goForwardBlind(250);
+        goForwardBlind(50);
 
         goForwardNearStone(5);
 
-        stopAtBlackSkystone(800);
+        stopAtBlackSkystone(600);
 
         pickUpSkyStone();
 
@@ -178,7 +179,7 @@ public class SkystoneBlueColorSensorBridge extends LinearOpMode {
         myColorSensor.strafeToGivenColorFeedback(telemetry,this, robot.colorSensorRight, robot, MyColor.BLUE, STRAFE_RIGHT, feedbackMovement);
         feedbackMovement.initIntegralError(DRIVE_FORWARD , robot);
         feedbackMovement.driveWithFeedback(robot, DRIVE_FORWARD , 0);
-        sleep(500);
+        sleep(350);
     }
 
 }
