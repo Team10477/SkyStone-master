@@ -70,7 +70,7 @@ public class MyColorSensor {
         telemetry.addData("black saturation top ", saturation);
         telemetry.addData("black value top", value);
 
-        boolean redHue = (hue < 60 || hue > 320) && (saturation > 0.5);
+        boolean redHue = (hue < 70 || hue > 320) && (saturation > 0.5);
 
         boolean blueHue = (hue > 180 && hue < 240) && (saturation > 0.5);
 
