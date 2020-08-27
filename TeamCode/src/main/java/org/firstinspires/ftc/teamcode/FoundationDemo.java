@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -9,6 +11,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 @Autonomous(name="Foundation Demo")
 public class FoundationDemo extends LinearOpMode {
@@ -21,6 +32,26 @@ public class FoundationDemo extends LinearOpMode {
     RevColorSensorV3 rightColorSensor, leftColorSensor;
 
     DigitalChannel frontTouchSensor, backTouchSensor;
+
+    private DcMotor leftFrontDrive = null;
+    private DcMotor rightFrontDrive = null;
+    private DcMotor leftRearDrive = null;
+    private DcMotor rightRearDrive = null;
+
+
+    double leftFrontPower;
+    double rightFrontPower;
+    double leftRearPower;
+    double rightRearPower;
+
+    // The IMU sensor object
+    BNO055IMU imu;
+
+    // State used for updating telemetry
+    Orientation angles;
+    Acceleration gravity;
+    Orientation lastAngles = new Orientation();
+    double                  globalAngle;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -37,9 +68,28 @@ public class FoundationDemo extends LinearOpMode {
         leftColorSensor.enableLed(true);
         rightColorSensor.enableLed(true);
 
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
         int counter = 1;
 
         waitForStart();
+
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        gravity  = imu.getGravity();
+        resetAngle();// This will ensure that the direction the robot is pointing is "zero angle"
 
         while (opModeIsActive() && counter == 1) {
             //Arms move up
@@ -115,5 +165,51 @@ public class FoundationDemo extends LinearOpMode {
         rightFront.setPower(power);
         leftBack.setPower(power);
         rightBack.setPower(power);
+    }
+
+    private void resetAngle()
+    {
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        globalAngle = 0;
+    }
+
+    /**
+     * Get current cumulative angle rotation from last reset.
+     * @return Angle in degrees. + = left, - = right.
+     */
+    private double getAngle()
+    {
+        // We experimentally determined the Z axis is the axis we want to use for heading angle.
+        // We have to process the angle because the imu works in euler angles so the Z axis is
+        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
+    }
+
+    public void StrafeWithAngle(double strafe, double turn){
+
+        leftFrontPower   = Range.clip(turn-strafe , -1.0, 1.0);
+        rightFrontPower  = Range.clip(-turn+strafe , -1.0, 1.0);
+        leftRearPower    = Range.clip(turn+strafe , -1.0, 1.0);
+        rightRearPower   = Range.clip(-turn-strafe , -1.0, 1.0);
+        leftFrontDrive.setPower(leftFrontPower);
+        rightFrontDrive.setPower(rightFrontPower);
+        leftRearDrive.setPower(leftRearPower);
+        rightRearDrive.setPower(rightRearPower);
     }
 }
