@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -75,6 +76,7 @@ public class FoundationDemo extends LinearOpMode {
         parameters.loggingEnabled      = true;
         parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        ElapsedTime runtime = new ElapsedTime();
 
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
@@ -84,6 +86,10 @@ public class FoundationDemo extends LinearOpMode {
 
         int counter = 1;
 
+        double heading=0;
+        double desired_heading, error, deltaTurnPower;
+        double PROPORTIONAL_GAIN = 0.015;
+
         waitForStart();
 
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
@@ -91,7 +97,10 @@ public class FoundationDemo extends LinearOpMode {
         gravity  = imu.getGravity();
         resetAngle();// This will ensure that the direction the robot is pointing is "zero angle"
 
+
         while (opModeIsActive() && counter == 1) {
+
+            /*
             //Arms move up
             leftArm.setPosition(0);
             rightArm.setPosition(0);
@@ -136,8 +145,41 @@ public class FoundationDemo extends LinearOpMode {
             }
 
             setDcMotorPower(0);
+*/
+
+            // turn right 90 degrees
+            desired_heading = 90;
+            while (heading >=90) {
+                heading = getAngle();
+                error = desired_heading - heading;
+                deltaTurnPower = PROPORTIONAL_GAIN * error;
+                StrafeWithAngle(0, deltaTurnPower);
+                sleep(25);
+            }
+
+            // go straight using IMU to maintain a 0 degree heading
+            runtime.reset();
+            desired_heading = 0;
+            while ( runtime.seconds() < 3) {
+                //end condition is for example, a fixed time, say 3 seconds, OR a touch sensor changing from 0 to 1 OR a color sensor changes from no color to a RED color
+                heading = getAngle();
+                error = desired_heading - heading;
+                deltaTurnPower = PROPORTIONAL_GAIN * error;
+                StrafeWithAngle(0.4, deltaTurnPower);
+            }
+
+            // Turn left to 60 degrees
+            desired_heading = -60;
+            while (heading <=-60) {
+                heading = getAngle();
+                error = desired_heading - heading;
+                deltaTurnPower = PROPORTIONAL_GAIN * error;
+                StrafeWithAngle(0, deltaTurnPower);
+                sleep(25);
+            }
 
         }
+
     }
 
     public void mapHardwareDevices() {
